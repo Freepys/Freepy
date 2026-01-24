@@ -36,13 +36,18 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            position: relative;
         }
         .card:hover { transform: translateY(-5px); border-color: #333; }
         .card img { width: 100%; height: 250px; object-fit: cover; display: block; }
         .card-title { padding: 15px; font-weight: bold; background: white; border-top: 2px solid #f2f2f2; }
 
         /* Platzhalter Design */
+        .placeholder-card {
+            border: 4px dashed #ddd !important;
+            cursor: default !important;
+        }
+        .placeholder-card:hover { transform: none !important; border-color: #ddd !important; }
+
         .error-box { 
             height: 250px; 
             display: flex; 
@@ -52,12 +57,10 @@
             background: #ffffff; 
             color: #888; 
             padding: 20px;
-            border: 4px dashed #ddd;
             font-size: 0.9rem;
             line-height: 1.4;
         }
 
-        /* Back Button - Glitch Fix */
         .back-btn { 
             display: none; 
             margin: 0 auto 40px auto; 
@@ -66,13 +69,10 @@
             color: white; 
             border: 4px solid #000; 
             font-family: 'Minecraft'; 
-            font-size: 1rem;
             cursor: pointer;
-            transition: background 0.2s;
             box-shadow: 4px 4px 0px #888;
         }
         .back-btn:hover { background: #555; transform: translate(-2px, -2px); box-shadow: 6px 6px 0px #000; }
-        .back-btn:active { transform: translate(2px, 2px); box-shadow: none; }
 
         #lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.95); z-index: 1000; justify-content: center; align-items: center; cursor: zoom-out; }
         #lightbox img { max-width: 90%; max-height: 90%; border: 5px solid #fff; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
@@ -114,6 +114,8 @@
         function renderCategories() {
             const container = document.getElementById('category-view');
             container.innerHTML = '';
+            
+            // Projekte anzeigen
             projectsData.forEach((project, index) => {
                 const card = document.createElement('div');
                 card.className = 'card';
@@ -124,6 +126,17 @@
                 `;
                 container.appendChild(card);
             });
+
+            // "More coming soon" Platzhalter auf der Startseite hinzufügen
+            const placeholder = document.createElement('div');
+            placeholder.className = 'card placeholder-card';
+            placeholder.innerHTML = `
+                <div class="error-box">
+                    <span style="font-size:3rem; margin-bottom:10px; color:#ddd;">?</span>
+                    <div>This is a placeholder.<br>More projects coming soon.</div>
+                </div>
+            `;
+            container.appendChild(placeholder);
         }
 
         function showGallery(index) {
@@ -145,9 +158,10 @@
 
                 img.onerror = function() {
                     if (!errorOccurred) {
+                        item.className = 'card placeholder-card';
                         item.innerHTML = `
                             <div class="error-box">
-                                <span style="font-size:3rem; margin-bottom:10px;">?</span>
+                                <span style="font-size:3rem; margin-bottom:10px; color:#ddd;">?</span>
                                 <div>This is a placeholder.<br>More images coming soon.</div>
                             </div>`;
                         errorOccurred = true;
