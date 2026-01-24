@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Freeper / Freepy | Portfolio</title>
+    
+    <link rel="icon" type="image/png" href="favicon.png">
+
+    <style>
+        @font-face { 
+            font-family: 'Minecraft'; 
+            src: url('MinecraftRegular-Bmg3.otf') format('opentype'); 
+            font-weight: normal; 
+        }
+        @font-face { 
+            font-family: 'MinecraftBold'; 
+            src: url('MinecraftBold-nMK1.otf') format('opentype'); 
+            font-weight: bold; 
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Minecraft', sans-serif;
+            background-color: #ffffff;
+            color: #333;
+            text-align: center;
+            overflow-x: hidden;
+        }
+
+        /* Hintergrund-Animation */
+        .background-bubbles {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+        .bubble {
+            position: absolute;
+            bottom: -100px;
+            background: rgba(200, 200, 200, 0.15);
+            border-radius: 50%;
+            animation: rise 12s infinite ease-in;
+        }
+        @keyframes rise {
+            0% { transform: translateY(0); opacity: 0; }
+            20% { opacity: 0.4; }
+            100% { transform: translateY(-120vh); opacity: 0; }
+        }
+
+        header { padding: 80px 20px 40px; }
+        
+        h1 { 
+            font-family: 'MinecraftBold'; 
+            font-size: 3.5rem; 
+            margin: 0; 
+            letter-spacing: 1px; 
+        }
+        
+        .subtitle { 
+            color: #aaa; 
+            margin-top: 15px; 
+            font-size: 1.1rem; 
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.4;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .card {
+            background: white;
+            border: 4px solid #f2f2f2;
+            cursor: pointer;
+            transition: transform 0.25s ease, border-color 0.25s ease;
+            overflow: hidden;
+            position: relative;
+        }
+        .card:hover {
+            transform: translateY(-8px);
+            border-color: #333;
+        }
+        .card img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            display: block;
+        }
+        .card-title {
+            padding: 20px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .error-box {
+            height: 250px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: #f9f9f9;
+            color: #aaa;
+            font-size: 0.8rem;
+            text-align: center;
+            border-bottom: 4px solid #f2f2f2;
+        }
+
+        .coming-soon {
+            opacity: 0.6;
+            cursor: default;
+            background: #fafafa;
+            border-style: dashed;
+        }
+
+        .back-btn {
+            display: none;
+            margin-bottom: 40px;
+            padding: 12px 25px;
+            background: #333;
+            color: white;
+            border: none;
+            font-family: 'Minecraft';
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        #lightbox {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.96);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        #lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            border: 8px solid white;
+            box-shadow: 0 0 40px rgba(0,0,0,0.1);
+            cursor: zoom-out;
+        }
+
+        #gallery-view { display: none; }
+
+        footer {
+            margin-top: 100px;
+            padding: 50px;
+            color: #ccc;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="background-bubbles" id="bubble-container"></div>
+
+    <div id="lightbox" onclick="closeLightbox()">
+        <img id="lightbox-img" src="" alt="Fullscreen">
+    </div>
+
+    <header>
+        <h1 id="main-title">Freeper / Freepy</h1>
+        <p class="subtitle">Freepy's Portfolio, with builds inspired by SmokePVP.</p>
+    </header>
+
+    <div class="container">
+        <button class="back-btn" id="back-btn" onclick="showCategories()">← BACK TO CATEGORIES</button>
+        <div id="category-view" class="grid"></div>
+        <div id="gallery-view">
+            <h2 id="gallery-title" style="margin-bottom: 50px; font-size: 2rem;"></h2>
+            <div id="gallery-images" class="grid"></div>
+        </div>
+    </div>
+
+    <footer>2026 Freeper / Freepy</footer>
+
+    <script>
+        let projectsData = [];
+
+        async function loadProjects() {
+            try {
+                const response = await fetch('projects.json');
+                projectsData = await response.json();
+                renderCategories();
+            } catch (err) {
+                console.error("Error loading JSON:", err);
+            }
+        }
+
+        function renderCategories() {
+            const container = document.getElementById('category-view');
+            container.innerHTML = '';
+            projectsData.forEach((project, index) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.onclick = () => showGallery(index);
+                card.innerHTML = `
+                    <img src="${project.cover}" alt="${project.name}" onerror="this.src='https://placehold.co/400x250?text=Image+Missing'">
+                    <div class="card-title">${project.name}</div>
+                `;
+                container.appendChild(card);
+            });
+
+            const soon = document.createElement('div');
+            soon.className = 'card coming-soon';
+            soon.innerHTML = `
+                <div style="height:250px; display:flex; align-items:center; justify-content:center; font-size:3rem; color:#ddd;">?</div>
+                <div class="card-title">More coming soon...</div>
+            `;
+            container.appendChild(soon);
+        }
+
+        function showGallery(index) {
+            const project = projectsData[index];
+            document.getElementById('category-view').style.display = 'none';
+            document.getElementById('gallery-view').style.display = 'block';
+            document.getElementById('back-btn').style.display = 'inline-block';
+            document.getElementById('gallery-title').innerText = project.name;
+            
+            const imgContainer = document.getElementById('gallery-images');
+            imgContainer.innerHTML = '';
+
+            let errorShown = false; // Verhindert mehrfache Fehlermeldungen
+
+            project.images.forEach(imgUrl => {
+                const item = document.createElement('div');
+                item.className = 'card';
+                
+                const img = document.createElement('img');
+                img.src = imgUrl;
+                img.alt = "Art";
+
+                img.onerror = function() {
+                    if (!errorShown) {
+                        item.innerHTML = `
+                            <div class="error-box">
+                                <span style="font-size:2rem; margin-bottom:10px;">?</span>
+                                It looks like your image was not able to load, or was not found.
+                            </div>`;
+                        errorShown = true;
+                    } else {
+                        item.style.display = 'none'; // Verstecke weitere fehlende Bilder
+                    }
+                };
+
+                img.onclick = () => openLightbox(imgUrl);
+                
+                item.appendChild(img);
+                imgContainer.appendChild(item);
+            });
+            window.scrollTo(0, 0);
+        }
+
+        function openLightbox(url) {
+            document.getElementById('lightbox-img').src = url;
+            document.getElementById('lightbox').style.display = 'flex';
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').style.display = 'none';
+        }
+
+        function showCategories() {
+            document.getElementById('category-view').style.display = 'grid';
+            document.getElementById('gallery-view').style.display = 'none';
+            document.getElementById('back-btn').style.display = 'none';
+            window.scrollTo(0, 0);
+        }
+
+        function initBubbles() {
+            const container = document.getElementById('bubble-container');
+            for (let i = 0; i < 18; i++) {
+                const b = document.createElement('div');
+                b.className = 'bubble';
+                const size = Math.random() * 45 + 15 + 'px';
+                b.style.width = size; b.style.height = size;
+                b.style.left = Math.random() * 100 + '%';
+                b.style.animationDuration = Math.random() * 8 + 8 + 's';
+                b.style.animationDelay = Math.random() * 5 + 's';
+                container.appendChild(b);
+            }
+        }
+
+        loadProjects();
+        initBubbles();
+    </script>
+</body>
+</html>
