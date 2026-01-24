@@ -11,7 +11,6 @@
 
         body { margin: 0; padding: 0; font-family: 'Minecraft', sans-serif; background-color: #ffffff; color: #333; text-align: center; overflow-x: hidden; }
         
-        /* Hintergrund-Blasen */
         .background-bubbles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
         .bubble { position: absolute; bottom: -100px; background: rgba(200, 200, 200, 0.15); border-radius: 50%; animation: rise 12s infinite ease-in; }
         @keyframes rise { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: 0.4; } 100% { transform: translateY(-120vh); opacity: 0; } }
@@ -22,12 +21,11 @@
 
         .container { max-width: 1200px; margin: 0 auto; padding: 20px; min-height: 600px; }
         
-        /* Grid Fix: Sorgt dafür, dass alle Boxen gleich groß sind */
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 25px;
-            align-items: start; /* Verhindert das Strecken bei ungleichen Höhen */
+            align-items: stretch;
         }
 
         .card {
@@ -38,22 +36,43 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            position: relative;
         }
         .card:hover { transform: translateY(-5px); border-color: #333; }
-        
-        /* Bild-Fix: Füllt die Box immer komplett aus */
-        .card img { 
-            width: 100%; 
+        .card img { width: 100%; height: 250px; object-fit: cover; display: block; }
+        .card-title { padding: 15px; font-weight: bold; background: white; border-top: 2px solid #f2f2f2; }
+
+        /* Platzhalter Design */
+        .error-box { 
             height: 250px; 
-            object-fit: cover; 
-            display: block; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            background: #ffffff; 
+            color: #888; 
+            padding: 20px;
+            border: 4px dashed #ddd;
+            font-size: 0.9rem;
+            line-height: 1.4;
         }
-        
-        .card-title { padding: 15px; font-weight: bold; background: white; }
 
-        .error-box { height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f9f9f9; color: #aaa; font-size: 0.8rem; }
-
-        .back-btn { display: none; margin-bottom: 40px; padding: 12px 25px; background: #333; color: white; border: none; font-family: 'Minecraft'; cursor: pointer; }
+        /* Back Button - Glitch Fix */
+        .back-btn { 
+            display: none; 
+            margin: 0 auto 40px auto; 
+            padding: 15px 30px; 
+            background: #333; 
+            color: white; 
+            border: 4px solid #000; 
+            font-family: 'Minecraft'; 
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            box-shadow: 4px 4px 0px #888;
+        }
+        .back-btn:hover { background: #555; transform: translate(-2px, -2px); box-shadow: 6px 6px 0px #000; }
+        .back-btn:active { transform: translate(2px, 2px); box-shadow: none; }
 
         #lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.95); z-index: 1000; justify-content: center; align-items: center; cursor: zoom-out; }
         #lightbox img { max-width: 90%; max-height: 90%; border: 5px solid #fff; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
@@ -74,7 +93,7 @@
         <button class="back-btn" id="back-btn" onclick="showCategories()">← BACK TO CATEGORIES</button>
         <div id="category-view" class="grid"></div>
         <div id="gallery-view" style="display:none;">
-            <h2 id="gallery-title" style="margin-bottom: 40px;"></h2>
+            <h2 id="gallery-title" style="margin-bottom: 40px; font-family: 'MinecraftBold';"></h2>
             <div id="gallery-images" class="grid"></div>
         </div>
     </div>
@@ -111,12 +130,12 @@
             const project = projectsData[index];
             document.getElementById('category-view').style.display = 'none';
             document.getElementById('gallery-view').style.display = 'block';
-            document.getElementById('back-btn').style.display = 'inline-block';
+            document.getElementById('back-btn').style.display = 'block';
             document.getElementById('gallery-title').innerText = project.name;
             
             const imgContainer = document.getElementById('gallery-images');
             imgContainer.innerHTML = '';
-            let errorShown = false;
+            let errorOccurred = false;
 
             project.images.forEach(imgUrl => {
                 const item = document.createElement('div');
@@ -125,10 +144,16 @@
                 img.src = imgUrl;
 
                 img.onerror = function() {
-                    if (!errorShown) {
-                        item.innerHTML = `<div class="error-box"><span style="font-size:2rem;">?</span><br>More coming soon...</div>`;
-                        errorShown = true;
-                    } else { item.style.display = 'none'; }
+                    if (!errorOccurred) {
+                        item.innerHTML = `
+                            <div class="error-box">
+                                <span style="font-size:3rem; margin-bottom:10px;">?</span>
+                                <div>This is a placeholder.<br>More images coming soon.</div>
+                            </div>`;
+                        errorOccurred = true;
+                    } else {
+                        item.style.display = 'none';
+                    }
                 };
 
                 img.onclick = () => {
@@ -145,6 +170,7 @@
             document.getElementById('category-view').style.display = 'grid';
             document.getElementById('gallery-view').style.display = 'none';
             document.getElementById('back-btn').style.display = 'none';
+            window.scrollTo(0, 0);
         }
 
         function initBubbles() {
