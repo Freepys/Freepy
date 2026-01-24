@@ -1,7 +1,7 @@
 [
   {
     "name": "Spooky Mansion in Forest",
-    "cover": "img/spookymansion/start/spooky.png",
+    "cover": "img/spookymansion/Start/spooky.png",
     "images": [
       "img/spookymansion/image1.png",
       "img/spookymansion/image2.png",
@@ -25,7 +25,7 @@
   },
   {
     "name": "Trees",
-    "cover": "img/trees/start/trees.png",
+    "cover": "img/trees/Start/trees.png",
     "images": [
       "img/trees/image1.png",
       "img/trees/image2.png",
