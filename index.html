@@ -21,8 +21,15 @@
 
         .container { max-width: 1200px; margin: 0 auto; padding: 20px; min-height: 600px; }
         
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; align-items: start; }
+        /* Grid Fix: Sorgt für einheitliche Zeilenhöhen ohne Pixel-Zwang */
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+            gap: 30px; 
+            align-items: stretch; 
+        }
 
+        /* Card Fix: Kein fester Pixelwert für die Höhe, sondern Flexbox */
         .card {
             background: white;
             border: 4px solid #f2f2f2;
@@ -31,29 +38,101 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            height: 320px;
             box-sizing: border-box;
+            height: 100%; 
         }
         .card:hover { transform: translateY(-5px); border-color: #333; }
-        .card img { width: 100%; height: 250px; object-fit: cover; display: block; }
-        .card-title { height: 70px; display: flex; align-items: center; justify-content: center; padding: 0 10px; font-weight: bold; background: white; border-top: 4px solid #f2f2f2; font-size: 0.9rem; }
+        
+        /* Bild Fix: Das Bild behält sein Verhältnis und füllt den Platz */
+        .card img { 
+            width: 100%; 
+            height: 200px; /* Reduziert, damit Text sicher Platz hat */
+            object-fit: cover; 
+            display: block; 
+        }
+        
+        /* Titel Fix: Füllt den Rest der Karte aus und schließt sauber ab */
+        .card-title { 
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px 10px;
+            font-weight: bold;
+            background: white;
+            border-top: 4px solid #f2f2f2;
+            font-size: 0.9rem;
+            min-height: 50px;
+        }
 
         .placeholder-card { border: 4px dashed #ddd !important; cursor: default !important; background: #fafafa; }
         .placeholder-card:hover { transform: none !important; border-color: #ddd !important; }
-        .error-box { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #888; text-align: center; padding: 20px; }
+        
+        .error-box { 
+            min-height: 250px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            color: #888; 
+            text-align: center; 
+            padding: 20px; 
+        }
 
         .back-btn { display: none; margin: 0 auto 40px auto; padding: 15px 30px; background: #333; color: white; border: 4px solid #000; font-family: 'Minecraft'; cursor: pointer; box-shadow: 4px 4px 0px #888; }
         .back-btn:hover { background: #555; transform: translate(-2px, -2px); box-shadow: 6px 6px 0px #000; }
 
-        /* LIGHTBOX NAVIGATION */
-        #lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.95); z-index: 1000; justify-content: center; align-items: center; }
-        #lightbox img { max-width: 85%; max-height: 85%; border: 5px solid #fff; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        /* LIGHTBOX & NAV PFEILE */
+        #lightbox { 
+            display: none; 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            background: rgba(255, 255, 255, 0.98); 
+            z-index: 1000; 
+            justify-content: center; 
+            align-items: center; 
+        }
+        #lightbox img { 
+            max-width: 85%; 
+            max-height: 85%; 
+            border: 5px solid #fff; 
+            box-shadow: 0 0 30px rgba(0,0,0,0.1); 
+            object-fit: contain;
+        }
         
-        .nav-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.1); color: #333; border: none; font-size: 3rem; padding: 20px; cursor: pointer; font-family: 'MinecraftBold'; transition: 0.2s; user-select: none; }
-        .nav-arrow:hover { background: rgba(0,0,0,0.2); scale: 1.1; }
-        .arrow-left { left: 20px; }
-        .arrow-right { right: 20px; }
-        .close-lb { position: absolute; top: 20px; right: 20px; font-size: 1.5rem; cursor: pointer; background: none; border: none; font-family: 'Minecraft'; }
+        .nav-arrow { 
+            position: absolute; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            background: none; 
+            color: #333; 
+            border: none; 
+            font-size: 5rem; 
+            padding: 20px; 
+            cursor: pointer; 
+            font-family: 'MinecraftBold'; 
+            transition: 0.2s; 
+            user-select: none;
+            z-index: 1001;
+        }
+        .nav-arrow:hover { color: #000; transform: translateY(-50%) scale(1.2); }
+        .arrow-left { left: 5vw; }
+        .arrow-right { right: 5vw; }
+        
+        .close-lb { 
+            position: absolute; 
+            top: 30px; 
+            right: 40px; 
+            font-size: 1.2rem; 
+            cursor: pointer; 
+            background: #333; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            font-family: 'Minecraft'; 
+            z-index: 1002;
+        }
 
         footer { margin-top: 100px; padding: 50px; color: #ccc; font-size: 0.9rem; }
     </style>
@@ -112,7 +191,7 @@
             });
             const placeholder = document.createElement('div');
             placeholder.className = 'card placeholder-card';
-            placeholder.innerHTML = `<div class="error-box"><span style="font-size:2rem; margin-bottom:10px;">?</span><div style="font-size:0.8rem;">More coming soon...</div></div>`;
+            placeholder.innerHTML = `<div class="error-box"><span style="font-size:2rem; margin-bottom:10px;">?</span><div style="font-size:0.8rem;">More projects coming soon.</div></div>`;
             container.appendChild(placeholder);
         }
 
@@ -137,7 +216,7 @@
                 img.onerror = function() {
                     if (!errorOccurred) {
                         item.className = 'card placeholder-card';
-                        item.innerHTML = `<div class="error-box"><span style="font-size:2rem; margin-bottom:10px;">?</span><div style="font-size:0.8rem;">More coming soon...</div></div>`;
+                        item.innerHTML = `<div class="error-box"><span style="font-size:2rem; margin-bottom:10px;">?</span><div style="font-size:0.8rem;">More images coming soon.</div></div>`;
                         errorOccurred = true;
                     } else { item.style.display = 'none'; }
                 };
@@ -153,10 +232,12 @@
             currentImageIndex = index;
             updateLightboxImage();
             document.getElementById('lightbox').style.display = 'flex';
+            document.body.style.overflow = 'hidden'; // Scrollen verhindern
         }
 
         function closeLightbox() {
             document.getElementById('lightbox').style.display = 'none';
+            document.body.style.overflow = 'auto';
         }
 
         function changeImage(step) {
@@ -167,10 +248,11 @@
         }
 
         function updateLightboxImage() {
-            document.getElementById('lightbox-img').src = currentProjectImages[currentImageIndex];
+            const imgPath = currentProjectImages[currentImageIndex];
+            document.getElementById('lightbox-img').src = imgPath;
         }
 
-        // Tastatur Steuerung
+        // Tastatur
         document.addEventListener('keydown', (e) => {
             if (document.getElementById('lightbox').style.display === 'flex') {
                 if (e.key === "ArrowRight") changeImage(1);
