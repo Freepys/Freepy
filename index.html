@@ -21,68 +21,52 @@
 
         .container { max-width: 1200px; margin: 0 auto; padding: 20px; min-height: 600px; }
         
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
-            align-items: stretch;
-        }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; align-items: start; }
 
         .card {
             background: white;
             border: 4px solid #f2f2f2;
             cursor: pointer;
             transition: transform 0.2s ease;
-            overflow: hidden;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
+            height: 320px;
+            box-sizing: border-box;
         }
         .card:hover { transform: translateY(-5px); border-color: #333; }
         .card img { width: 100%; height: 250px; object-fit: cover; display: block; }
-        .card-title { padding: 15px; font-weight: bold; background: white; border-top: 2px solid #f2f2f2; }
+        .card-title { height: 70px; display: flex; align-items: center; justify-content: center; padding: 0 10px; font-weight: bold; background: white; border-top: 4px solid #f2f2f2; font-size: 0.9rem; }
 
-        /* Platzhalter Design */
-        .placeholder-card {
-            border: 4px dashed #ddd !important;
-            cursor: default !important;
-        }
+        .placeholder-card { border: 4px dashed #ddd !important; cursor: default !important; background: #fafafa; }
         .placeholder-card:hover { transform: none !important; border-color: #ddd !important; }
+        .error-box { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #888; text-align: center; padding: 20px; }
 
-        .error-box { 
-            height: 250px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            background: #ffffff; 
-            color: #888; 
-            padding: 20px;
-            font-size: 0.9rem;
-            line-height: 1.4;
-        }
-
-        .back-btn { 
-            display: none; 
-            margin: 0 auto 40px auto; 
-            padding: 15px 30px; 
-            background: #333; 
-            color: white; 
-            border: 4px solid #000; 
-            font-family: 'Minecraft'; 
-            cursor: pointer;
-            box-shadow: 4px 4px 0px #888;
-        }
+        .back-btn { display: none; margin: 0 auto 40px auto; padding: 15px 30px; background: #333; color: white; border: 4px solid #000; font-family: 'Minecraft'; cursor: pointer; box-shadow: 4px 4px 0px #888; }
         .back-btn:hover { background: #555; transform: translate(-2px, -2px); box-shadow: 6px 6px 0px #000; }
 
-        #lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.95); z-index: 1000; justify-content: center; align-items: center; cursor: zoom-out; }
-        #lightbox img { max-width: 90%; max-height: 90%; border: 5px solid #fff; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        /* LIGHTBOX NAVIGATION */
+        #lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.95); z-index: 1000; justify-content: center; align-items: center; }
+        #lightbox img { max-width: 85%; max-height: 85%; border: 5px solid #fff; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        
+        .nav-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.1); color: #333; border: none; font-size: 3rem; padding: 20px; cursor: pointer; font-family: 'MinecraftBold'; transition: 0.2s; user-select: none; }
+        .nav-arrow:hover { background: rgba(0,0,0,0.2); scale: 1.1; }
+        .arrow-left { left: 20px; }
+        .arrow-right { right: 20px; }
+        .close-lb { position: absolute; top: 20px; right: 20px; font-size: 1.5rem; cursor: pointer; background: none; border: none; font-family: 'Minecraft'; }
 
         footer { margin-top: 100px; padding: 50px; color: #ccc; font-size: 0.9rem; }
     </style>
 </head>
 <body>
     <div class="background-bubbles" id="bubble-container"></div>
-    <div id="lightbox" onclick="this.style.display='none'"><img id="lightbox-img" src=""></div>
+    
+    <div id="lightbox">
+        <button class="close-lb" onclick="closeLightbox()">✕ CLOSE</button>
+        <button class="nav-arrow arrow-left" onclick="changeImage(-1)">‹</button>
+        <img id="lightbox-img" src="">
+        <button class="nav-arrow arrow-right" onclick="changeImage(1)">›</button>
+    </div>
 
     <header>
         <h1>Freeper / Freepy</h1>
@@ -102,6 +86,8 @@
 
     <script>
         let projectsData = [];
+        let currentProjectImages = [];
+        let currentImageIndex = 0;
 
         async function loadProjects() {
             try {
@@ -114,33 +100,25 @@
         function renderCategories() {
             const container = document.getElementById('category-view');
             container.innerHTML = '';
-            
-            // Projekte anzeigen
             projectsData.forEach((project, index) => {
                 const card = document.createElement('div');
                 card.className = 'card';
                 card.onclick = () => showGallery(index);
                 card.innerHTML = `
-                    <img src="${project.cover}" alt="${project.name}" onerror="this.src='https://placehold.co/400x250?text=Cover+Missing'">
+                    <img src="${project.cover}" onerror="this.src='https://placehold.co/400x250?text=Image+Missing'">
                     <div class="card-title">${project.name}</div>
                 `;
                 container.appendChild(card);
             });
-
-            // "More coming soon" Platzhalter auf der Startseite hinzufügen
             const placeholder = document.createElement('div');
             placeholder.className = 'card placeholder-card';
-            placeholder.innerHTML = `
-                <div class="error-box">
-                    <span style="font-size:3rem; margin-bottom:10px; color:#ddd;">?</span>
-                    <div>This is a placeholder.<br>More projects coming soon.</div>
-                </div>
-            `;
+            placeholder.innerHTML = `<div class="error-box"><span style="font-size:2rem; margin-bottom:10px;">?</span><div style="font-size:0.8rem;">More coming soon...</div></div>`;
             container.appendChild(placeholder);
         }
 
         function showGallery(index) {
             const project = projectsData[index];
+            currentProjectImages = project.images;
             document.getElementById('category-view').style.display = 'none';
             document.getElementById('gallery-view').style.display = 'block';
             document.getElementById('back-btn').style.display = 'block';
@@ -150,7 +128,7 @@
             imgContainer.innerHTML = '';
             let errorOccurred = false;
 
-            project.images.forEach(imgUrl => {
+            project.images.forEach((imgUrl, imgIdx) => {
                 const item = document.createElement('div');
                 item.className = 'card';
                 const img = document.createElement('img');
@@ -159,26 +137,47 @@
                 img.onerror = function() {
                     if (!errorOccurred) {
                         item.className = 'card placeholder-card';
-                        item.innerHTML = `
-                            <div class="error-box">
-                                <span style="font-size:3rem; margin-bottom:10px; color:#ddd;">?</span>
-                                <div>This is a placeholder.<br>More images coming soon.</div>
-                            </div>`;
+                        item.innerHTML = `<div class="error-box"><span style="font-size:2rem; margin-bottom:10px;">?</span><div style="font-size:0.8rem;">More coming soon...</div></div>`;
                         errorOccurred = true;
-                    } else {
-                        item.style.display = 'none';
-                    }
+                    } else { item.style.display = 'none'; }
                 };
 
-                img.onclick = () => {
-                    document.getElementById('lightbox-img').src = imgUrl;
-                    document.getElementById('lightbox').style.display = 'flex';
-                };
+                img.onclick = () => openLightbox(imgIdx);
                 item.appendChild(img);
                 imgContainer.appendChild(item);
             });
             window.scrollTo(0, 0);
         }
+
+        function openLightbox(index) {
+            currentImageIndex = index;
+            updateLightboxImage();
+            document.getElementById('lightbox').style.display = 'flex';
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').style.display = 'none';
+        }
+
+        function changeImage(step) {
+            currentImageIndex += step;
+            if (currentImageIndex >= currentProjectImages.length) currentImageIndex = 0;
+            if (currentImageIndex < 0) currentImageIndex = currentProjectImages.length - 1;
+            updateLightboxImage();
+        }
+
+        function updateLightboxImage() {
+            document.getElementById('lightbox-img').src = currentProjectImages[currentImageIndex];
+        }
+
+        // Tastatur Steuerung
+        document.addEventListener('keydown', (e) => {
+            if (document.getElementById('lightbox').style.display === 'flex') {
+                if (e.key === "ArrowRight") changeImage(1);
+                if (e.key === "ArrowLeft") changeImage(-1);
+                if (e.key === "Escape") closeLightbox();
+            }
+        });
 
         function showCategories() {
             document.getElementById('category-view').style.display = 'grid';
