@@ -11,7 +11,6 @@
         @font-face { 
             font-family: 'Minecraft'; 
             src: url('MinecraftRegular-Bmg3.otf') format('opentype'); 
-            font-weight: normal; 
         }
         @font-face { 
             font-family: 'MinecraftBold'; 
@@ -26,10 +25,8 @@
             background-color: #ffffff;
             color: #333;
             text-align: center;
-            overflow-x: hidden;
         }
 
-        /* Hintergrund-Animation */
         .background-bubbles {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -50,23 +47,8 @@
         }
 
         header { padding: 80px 20px 40px; }
-        
-        h1 { 
-            font-family: 'MinecraftBold'; 
-            font-size: 3.5rem; 
-            margin: 0; 
-            letter-spacing: 1px; 
-        }
-        
-        .subtitle { 
-            color: #aaa; 
-            margin-top: 15px; 
-            font-size: 1.1rem; 
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-            line-height: 1.4;
-        }
+        h1 { font-family: 'MinecraftBold'; font-size: 3.5rem; margin: 0; }
+        .subtitle { color: #aaa; margin-top: 15px; font-size: 1.1rem; }
 
         .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
         
@@ -82,23 +64,10 @@
             cursor: pointer;
             transition: transform 0.25s ease, border-color 0.25s ease;
             overflow: hidden;
-            position: relative;
         }
-        .card:hover {
-            transform: translateY(-8px);
-            border-color: #333;
-        }
-        .card img {
-            width: 100%;
-            height: 250px;
-            object-fit: cover;
-            display: block;
-        }
-        .card-title {
-            padding: 20px;
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
+        .card:hover { transform: translateY(-8px); border-color: #333; }
+        .card img { width: 100%; height: 250px; object-fit: cover; display: block; }
+        .card-title { padding: 20px; font-weight: bold; }
 
         .error-box {
             height: 250px;
@@ -111,14 +80,6 @@
             color: #aaa;
             font-size: 0.8rem;
             text-align: center;
-            border-bottom: 4px solid #f2f2f2;
-        }
-
-        .coming-soon {
-            opacity: 0.6;
-            cursor: default;
-            background: #fafafa;
-            border-style: dashed;
         }
 
         .back-btn {
@@ -130,55 +91,42 @@
             border: none;
             font-family: 'Minecraft';
             cursor: pointer;
-            font-size: 1rem;
         }
 
         #lightbox {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 255, 255, 0.96);
+            background: rgba(255, 255, 255, 0.95);
             z-index: 1000;
             justify-content: center;
             align-items: center;
         }
-        #lightbox img {
-            max-width: 90%;
-            max-height: 90%;
-            border: 8px solid white;
-            box-shadow: 0 0 40px rgba(0,0,0,0.1);
-            cursor: zoom-out;
-        }
+        #lightbox img { max-width: 90%; max-height: 90%; border: 5px solid #fff; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
 
-        #gallery-view { display: none; }
-
-        footer {
-            margin-top: 100px;
-            padding: 50px;
-            color: #ccc;
-            font-size: 0.9rem;
-            letter-spacing: 1px;
-        }
+        footer { margin-top: 100px; padding: 50px; color: #ccc; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
     <div class="background-bubbles" id="bubble-container"></div>
 
-    <div id="lightbox" onclick="closeLightbox()">
-        <img id="lightbox-img" src="" alt="Fullscreen">
+    <div id="lightbox" onclick="this.style.display='none'">
+        <img id="lightbox-img" src="">
     </div>
 
     <header>
-        <h1 id="main-title">Freeper / Freepy</h1>
+        <h1>Freeper / Freepy</h1>
         <p class="subtitle">Freepy's Portfolio, with builds inspired by SmokePVP.</p>
     </header>
 
     <div class="container">
         <button class="back-btn" id="back-btn" onclick="showCategories()">← BACK TO CATEGORIES</button>
+        
         <div id="category-view" class="grid"></div>
-        <div id="gallery-view">
-            <h2 id="gallery-title" style="margin-bottom: 50px; font-size: 2rem;"></h2>
+
+        <div id="gallery-view" style="display:none;">
+            <h2 id="gallery-title" style="margin-bottom: 40px;"></h2>
             <div id="gallery-images" class="grid"></div>
         </div>
     </div>
@@ -194,7 +142,7 @@
                 projectsData = await response.json();
                 renderCategories();
             } catch (err) {
-                console.error("Error loading JSON:", err);
+                console.error("Fehler beim Laden der JSON:", err);
             }
         }
 
@@ -206,19 +154,11 @@
                 card.className = 'card';
                 card.onclick = () => showGallery(index);
                 card.innerHTML = `
-                    <img src="${project.cover}" alt="${project.name}" onerror="this.src='https://placehold.co/400x250?text=Image+Missing'">
+                    <img src="${project.cover}" alt="${project.name}" onerror="this.src='https://placehold.co/400x250?text=Cover+Missing'">
                     <div class="card-title">${project.name}</div>
                 `;
                 container.appendChild(card);
             });
-
-            const soon = document.createElement('div');
-            soon.className = 'card coming-soon';
-            soon.innerHTML = `
-                <div style="height:250px; display:flex; align-items:center; justify-content:center; font-size:3rem; color:#ddd;">?</div>
-                <div class="card-title">More coming soon...</div>
-            `;
-            container.appendChild(soon);
         }
 
         function showGallery(index) {
@@ -231,7 +171,7 @@
             const imgContainer = document.getElementById('gallery-images');
             imgContainer.innerHTML = '';
 
-            let errorShown = false; // Verhindert mehrfache Fehlermeldungen
+            let errorShown = false;
 
             project.images.forEach(imgUrl => {
                 const item = document.createElement('div');
@@ -239,7 +179,6 @@
                 
                 const img = document.createElement('img');
                 img.src = imgUrl;
-                img.alt = "Art";
 
                 img.onerror = function() {
                     if (!errorShown) {
@@ -250,11 +189,14 @@
                             </div>`;
                         errorShown = true;
                     } else {
-                        item.style.display = 'none'; // Verstecke weitere fehlende Bilder
+                        item.style.display = 'none';
                     }
                 };
 
-                img.onclick = () => openLightbox(imgUrl);
+                img.onclick = () => {
+                    document.getElementById('lightbox-img').src = imgUrl;
+                    document.getElementById('lightbox').style.display = 'flex';
+                };
                 
                 item.appendChild(img);
                 imgContainer.appendChild(item);
@@ -262,31 +204,21 @@
             window.scrollTo(0, 0);
         }
 
-        function openLightbox(url) {
-            document.getElementById('lightbox-img').src = url;
-            document.getElementById('lightbox').style.display = 'flex';
-        }
-
-        function closeLightbox() {
-            document.getElementById('lightbox').style.display = 'none';
-        }
-
         function showCategories() {
             document.getElementById('category-view').style.display = 'grid';
             document.getElementById('gallery-view').style.display = 'none';
             document.getElementById('back-btn').style.display = 'none';
-            window.scrollTo(0, 0);
         }
 
         function initBubbles() {
             const container = document.getElementById('bubble-container');
-            for (let i = 0; i < 18; i++) {
+            for (let i = 0; i < 15; i++) {
                 const b = document.createElement('div');
                 b.className = 'bubble';
-                const size = Math.random() * 45 + 15 + 'px';
+                const size = Math.random() * 40 + 10 + 'px';
                 b.style.width = size; b.style.height = size;
                 b.style.left = Math.random() * 100 + '%';
-                b.style.animationDuration = Math.random() * 8 + 8 + 's';
+                b.style.animationDuration = Math.random() * 5 + 7 + 's';
                 b.style.animationDelay = Math.random() * 5 + 's';
                 container.appendChild(b);
             }

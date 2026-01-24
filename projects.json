@@ -2,16 +2,49 @@
   {
     "name": "Spooky Mansion in Forest",
     "cover": "img/spookymansion/start/spooky.png",
-    "images": ["img/spookymansion/image1.png"]
+    "images": [
+      "img/spookymansion/image1.png",
+      "img/spookymansion/image2.png",
+      "img/spookymansion/image3.png",
+      "img/spookymansion/image4.png",
+      "img/spookymansion/image5.png",
+      "img/spookymansion/image6.png",
+      "img/spookymansion/image7.png",
+      "img/spookymansion/image8.png",
+      "img/spookymansion/image9.png"
+    ]
   },
   {
     "name": "Dream station makeoff",
     "cover": "img/dreamstation/start/dreamstation.png",
-    "images": ["img/dreamstation/image1.png"]
+    "images": [
+      "img/dreamstation/image1.png",
+      "img/dreamstation/image2.png",
+      "img/dreamstation/image3.png"
+    ]
   },
   {
     "name": "Trees",
     "cover": "img/trees/start/trees.png",
-    "images": ["img/trees/image1.png"]
+    "images": [
+      "img/trees/image1.png",
+      "img/trees/image2.png",
+      "img/trees/image3.png",
+      "img/trees/image4.png",
+      "img/trees/image5.png",
+      "img/trees/image6.png",
+      "img/trees/image7.png",
+      "img/trees/image8.png",
+      "img/trees/image9.png",
+      "img/trees/image10.png",
+      "img/trees/image11.png",
+      "img/trees/image12.png",
+      "img/trees/image13.png",
+      "img/trees/image14.png",
+      "img/trees/image15.png",
+      "img/trees/image16.png",
+      "img/trees/image17.png",
+      "img/trees/image18.png"
+    ]
   }
 ]
