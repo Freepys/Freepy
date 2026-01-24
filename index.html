@@ -38,13 +38,14 @@
         .card:hover { transform: translateY(-5px); border-color: #333; }
         .card img { width: 100%; height: 250px; object-fit: cover; display: block; }
         
-        /* Titelbereich passt sich flexibel an */
+        /* Titelbereich angepasst auf MinecraftBold */
         .card-title { 
             flex-grow: 1;
             display: flex; 
             align-items: center; 
             justify-content: center; 
             padding: 15px 10px; 
+            font-family: 'MinecraftBold', sans-serif;
             font-weight: bold; 
             background: white; 
             border-top: 4px solid #f2f2f2; 
@@ -169,7 +170,7 @@
             currentImageIndex = index;
             updateLightboxImage();
             document.getElementById('lightbox').style.display = 'flex';
-            document.body.style.overflow = 'hidden'; // Verhindert Scrollen im Hintergrund
+            document.body.style.overflow = 'hidden';
         }
 
         function closeLightbox() {
