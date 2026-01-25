@@ -5,24 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Freeper / Freepy | Portfolio</title>
     <link rel="icon" type="image/png" href="https://freepys.github.io/Freepy/favicon.png">
+
     <style>
         @font-face { font-family: 'Minecraft'; src: url('MinecraftRegular-Bmg3.otf') format('opentype'); }
         @font-face { font-family: 'MinecraftBold'; src: url('MinecraftBold-nMK1.otf') format('opentype'); font-weight: bold; }
 
-        body { margin: 0; padding: 0; font-family: 'Minecraft', sans-serif; background-color: #ffffff; color: #333; text-align: center; overflow-x: hidden; }
-        
-        .background-bubbles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
-        .bubble { position: absolute; bottom: -100px; background: rgba(200, 200, 200, 0.15); border-radius: 50%; animation: rise 12s infinite ease-in; }
-        @keyframes rise { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: 0.4; } 100% { transform: translateY(-120vh); opacity: 0; } }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Minecraft', sans-serif;
+            background-color: #ffffff;
+            color: #333;
+            text-align: center;
+            overflow-x: hidden;
+        }
+
+        .background-bubbles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .bubble {
+            position: absolute;
+            bottom: -100px;
+            background: rgba(200, 200, 200, 0.15);
+            border-radius: 50%;
+            animation: rise 12s infinite ease-in;
+        }
+
+        @keyframes rise {
+            0% { transform: translateY(0); opacity: 0; }
+            20% { opacity: 0.4; }
+            100% { transform: translateY(-120vh); opacity: 0; }
+        }
 
         header { padding: 80px 20px 40px; }
         h1 { font-family: 'MinecraftBold'; font-size: 3.5rem; margin: 0; }
         .subtitle { color: #aaa; margin-top: 15px; font-size: 1.1rem; }
 
         .container { max-width: 1200px; margin: 0 auto; padding: 20px; min-height: 600px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; align-items: stretch; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; }
 
-        /* KARTEN DESIGN */
         .card-base {
             background: white;
             border: 4px solid #f2f2f2;
@@ -31,200 +59,260 @@
             overflow: hidden;
             background-color: #f9f9f9;
         }
-        .card-base:hover { transform: translateY(-5px); border-color: #333; }
-        
-        /* BILD-STYLING & FADE-IN ANIMATION */
-        .card-base img { 
-            width: 100%; 
+
+        .card-base:hover {
+            transform: translateY(-5px);
+            border-color: #333;
+        }
+
+        .card-base img {
+            width: 100%;
             display: block;
             opacity: 0;
-            transition: opacity 0.8s ease; /* Die Lade-Animation */
+            transition: opacity 0.8s ease;
             object-fit: cover;
         }
+
         .card-base img.loaded { opacity: 1; }
 
-        /* STARTSEITE: Karten mit Text-Balken */
         .project-card img { height: 250px; }
-        .card-title { 
-            padding: 15px; 
+
+        .card-title {
+            padding: 15px;
             font-family: 'MinecraftBold', sans-serif;
-            background: white; 
-            border-top: 4px solid #f2f2f2; 
-            font-size: 0.9rem; 
+            background: white;
+            border-top: 4px solid #f2f2f2;
+            font-size: 0.9rem;
         }
 
-        /* GALERIE: Reine Bilder OHNE weißen Balken */
-        .gallery-card { height: 250px; } /* Hier wird die Höhe fixiert für das Grid */
+        .gallery-card { height: 250px; }
         .gallery-card img { height: 100%; }
 
-        /* PLATZHALTER "?" */
-        .placeholder-card { border: 4px dashed #ddd !important; cursor: default !important; background: #fafafa; display: flex; align-items: center; justify-content: center; min-height: 310px; }
+        .placeholder-card {
+            border: 4px dashed #ddd !important;
+            cursor: default !important;
+            background: #fafafa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 310px;
+        }
+
         .error-box { color: #888; text-align: center; padding: 20px; }
 
-        .back-btn { display: none; margin: 0 auto 40px auto; padding: 15px 30px; background: #333; color: white; border: 4px solid #000; font-family: 'Minecraft'; cursor: pointer; box-shadow: 4px 4px 0px #888; }
-        .back-btn:hover { background: #555; transform: translate(-2px, -2px); box-shadow: 6px 6px 0px #000; }
+        .back-btn {
+            display: none;
+            margin: 0 auto 40px auto;
+            padding: 15px 30px;
+            background: #333;
+            color: white;
+            border: 4px solid #000;
+            font-family: 'Minecraft';
+            cursor: pointer;
+            box-shadow: 4px 4px 0px #888;
+        }
 
-        /* LIGHTBOX */
-        #lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.98); z-index: 1000; justify-content: center; align-items: center; }
-        #lightbox img { max-width: 90%; max-height: 85%; border: 5px solid #fff; box-shadow: 0 0 40px rgba(0,0,0,0.1); }
-        .nav-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 5rem; cursor: pointer; font-family: 'MinecraftBold'; color: #ccc; }
+        .back-btn:hover {
+            background: #555;
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0px #000;
+        }
+
+        #lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.98);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #lightbox img {
+            max-width: 90%;
+            max-height: 85%;
+            border: 5px solid #fff;
+            box-shadow: 0 0 40px rgba(0,0,0,0.1);
+        }
+
+        .nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 5rem;
+            cursor: pointer;
+            font-family: 'MinecraftBold';
+            color: #ccc;
+        }
+
         .nav-arrow:hover { color: #333; }
-        .arrow-left { left: 2vw; } .arrow-right { right: 2vw; }
+        .arrow-left { left: 2vw; }
+        .arrow-right { right: 2vw; }
 
         footer { margin-top: 100px; padding: 50px; color: #ccc; font-size: 0.9rem; }
     </style>
 </head>
+
 <body>
-    <div class="background-bubbles" id="bubble-container"></div>
-    
-    <div id="lightbox">
-        <button style="position:absolute; top:20px; right:20px; background:#333; color:white; padding:10px; font-family:'Minecraft'; border:none; cursor:pointer;" onclick="closeLightbox()">✕ CLOSE</button>
-        <button class="nav-arrow arrow-left" onclick="changeImage(-1)">‹</button>
-        <img id="lightbox-img" src="">
-        <button class="nav-arrow arrow-right" onclick="changeImage(1)">›</button>
+<div class="background-bubbles" id="bubble-container"></div>
+
+<div id="lightbox">
+    <button style="position:absolute; top:20px; right:20px; background:#333; color:white; padding:10px; font-family:'Minecraft'; border:none; cursor:pointer;" onclick="closeLightbox()">✕ CLOSE</button>
+    <button class="nav-arrow arrow-left" onclick="changeImage(-1)">‹</button>
+    <img id="lightbox-img">
+    <button class="nav-arrow arrow-right" onclick="changeImage(1)">›</button>
+</div>
+
+<header>
+    <h1>Freeper / Freepy</h1>
+    <p class="subtitle">Freepy's Portfolio, inspired by SmokePVP.</p>
+</header>
+
+<div class="container">
+    <button class="back-btn" id="back-btn" onclick="showCategories()">← BACK TO CATEGORIES</button>
+    <div id="category-view" class="grid"></div>
+
+    <div id="gallery-view" style="display:none;">
+        <h2 id="gallery-title" style="margin-bottom:40px; font-family:'MinecraftBold';"></h2>
+        <div id="gallery-images" class="grid"></div>
     </div>
+</div>
 
-    <header>
-        <h1>Freeper / Freepy</h1>
-        <p class="subtitle">Freepy's Portfolio, inspired by SmokePVP.</p>
-    </header>
+<footer>2026 Freeper / Freepy</footer>
 
-    <div class="container">
-        <button class="back-btn" id="back-btn" onclick="showCategories()">← BACK TO CATEGORIES</button>
-        <div id="category-view" class="grid"></div>
-        <div id="gallery-view" style="display:none;">
-            <h2 id="gallery-title" style="margin-bottom: 40px; font-family: 'MinecraftBold';"></h2>
-            <div id="gallery-images" class="grid"></div>
-        </div>
-    </div>
+<script>
+let projectsData = [];
+let currentProjectImages = [];
+let currentImageIndex = 0;
 
-    <footer>2026 Freeper / Freepy</footer>
+async function loadProjects() {
+    const response = await fetch('projects.json');
+    projectsData = await response.json();
+    renderCategories();
+}
 
-    <script>
-        let projectsData = [];
-        let currentProjectImages = [];
-        let currentImageIndex = 0;
+function renderCategories() {
+    const container = document.getElementById('category-view');
+    container.innerHTML = '';
 
-        async function loadProjects() {
-            try {
-                const response = await fetch('projects.json');
-                projectsData = await response.json();
-                renderCategories();
-            } catch (err) { console.error("Could not load projects.json"); }
+    projectsData.forEach((project, index) => {
+        const card = document.createElement('div');
+        card.className = 'card-base project-card';
+        card.onclick = () => showGallery(index);
+
+        const img = new Image();
+        img.src = project.cover;
+
+        if (img.complete) {
+            img.classList.add('loaded');
+        } else {
+            img.onload = () => img.classList.add('loaded');
         }
 
-        function renderCategories() {
-            const container = document.getElementById('category-view');
-            container.innerHTML = '';
-            
-            projectsData.forEach((project, index) => {
-                const card = document.createElement('div');
-                card.className = 'card-base project-card';
-                card.onclick = () => showGallery(index);
-                
-                const img = new Image();
-                img.src = project.cover;
-                img.onload = () => img.classList.add('loaded'); // Trigger Animation
-                img.onerror = () => { img.src = 'https://placehold.co/400x250?text=Error+Loading'; img.classList.add('loaded'); };
-                
-                card.appendChild(img);
-                card.innerHTML += `<div class="card-title">${project.name}</div>`;
-                container.appendChild(card);
-            });
+        img.onerror = () => {
+            img.src = 'https://placehold.co/400x250?text=Error+Loading';
+            img.classList.add('loaded');
+        };
 
-            // "More projects" Platzhalter
-            const placeholder = document.createElement('div');
-            placeholder.className = 'card-base placeholder-card';
-            placeholder.innerHTML = `<div class="error-box"><span style="font-size:3rem; margin-bottom:10px; display:block;">?</span><div>More projects coming soon.</div></div>`;
-            container.appendChild(placeholder);
-        }
+        const title = document.createElement('div');
+        title.className = 'card-title';
+        title.textContent = project.name;
 
-        function showGallery(index) {
-            const project = projectsData[index];
-            currentProjectImages = project.images;
-            document.getElementById('category-view').style.display = 'none';
-            document.getElementById('gallery-view').style.display = 'block';
-            document.getElementById('back-btn').style.display = 'block';
-            document.getElementById('gallery-title').innerText = project.name;
-            
-            const imgContainer = document.getElementById('gallery-images');
-            imgContainer.innerHTML = '';
-            let firstError = true;
+        card.appendChild(img);
+        card.appendChild(title);
+        container.appendChild(card);
+    });
 
-            project.images.forEach((imgUrl, imgIdx) => {
-                const item = document.createElement('div');
-                item.className = 'card-base gallery-card';
-                
-                const img = new Image();
-                img.src = imgUrl;
-                img.onload = () => img.classList.add('loaded'); // Trigger Animation
-                img.onclick = () => openLightbox(imgIdx);
-                
-                img.onerror = function() {
-                    if (firstError) {
-                        item.className = 'card-base placeholder-card';
-                        item.style.height = "250px";
-                        item.innerHTML = `<div class="error-box"><span style="font-size:3rem; display:block;">?</span><div style="font-size:0.8rem;">More images soon.</div></div>`;
-                        firstError = false;
-                    } else {
-                        item.style.display = 'none';
-                    }
-                };
-                
-                item.appendChild(img);
-                imgContainer.appendChild(item);
-            });
-            window.scrollTo(0, 0);
-        }
+    const placeholder = document.createElement('div');
+    placeholder.className = 'card-base placeholder-card';
+    placeholder.innerHTML = `<div class="error-box"><span style="font-size:3rem;">?</span><div>More projects coming soon.</div></div>`;
+    container.appendChild(placeholder);
+}
 
-        function openLightbox(index) {
-            currentImageIndex = index;
-            document.getElementById('lightbox-img').src = currentProjectImages[currentImageIndex];
-            document.getElementById('lightbox').style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-        }
+function showGallery(index) {
+    const project = projectsData[index];
+    currentProjectImages = project.images;
 
-        function closeLightbox() {
-            document.getElementById('lightbox').style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
+    document.getElementById('category-view').style.display = 'none';
+    document.getElementById('gallery-view').style.display = 'block';
+    document.getElementById('back-btn').style.display = 'block';
+    document.getElementById('gallery-title').innerText = project.name;
 
-        function changeImage(step) {
-            currentImageIndex = (currentImageIndex + step + currentProjectImages.length) % currentProjectImages.length;
-            document.getElementById('lightbox-img').src = currentProjectImages[currentImageIndex];
-        }
+    const imgContainer = document.getElementById('gallery-images');
+    imgContainer.innerHTML = '';
 
-        function showCategories() {
-            document.getElementById('category-view').style.display = 'grid';
-            document.getElementById('gallery-view').style.display = 'none';
-            document.getElementById('back-btn').style.display = 'none';
-            window.scrollTo(0, 0);
-        }
+    let firstError = true;
 
-        function initBubbles() {
-            const container = document.getElementById('bubble-container');
-            for (let i = 0; i < 15; i++) {
-                const b = document.createElement('div');
-                b.className = 'bubble';
-                const size = Math.random() * 40 + 10 + 'px';
-                b.style.width = size; b.style.height = size;
-                b.style.left = Math.random() * 100 + '%';
-                b.style.animationDuration = Math.random() * 5 + 7 + 's';
-                container.appendChild(b);
+    project.images.forEach((imgUrl, imgIdx) => {
+        const item = document.createElement('div');
+        item.className = 'card-base gallery-card';
+
+        const img = new Image();
+        img.src = imgUrl;
+        img.onload = () => img.classList.add('loaded');
+        img.onclick = () => openLightbox(imgIdx);
+
+        img.onerror = () => {
+            if (firstError) {
+                item.className = 'card-base placeholder-card';
+                item.innerHTML = `<div class="error-box"><span style="font-size:3rem;">?</span><div>More images soon.</div></div>`;
+                firstError = false;
+            } else {
+                item.style.display = 'none';
             }
-        }
+        };
 
-        loadProjects();
-        initBubbles();
+        item.appendChild(img);
+        imgContainer.appendChild(item);
+    });
 
-        // Keyboard Support
-        document.addEventListener('keydown', (e) => {
-            if (document.getElementById('lightbox').style.display === 'flex') {
-                if (e.key === "ArrowRight") changeImage(1);
-                if (e.key === "ArrowLeft") changeImage(-1);
-                if (e.key === "Escape") closeLightbox();
-            }
-        });
-    </script>
+    window.scrollTo(0, 0);
+}
+
+function openLightbox(index) {
+    currentImageIndex = index;
+    document.getElementById('lightbox-img').src = currentProjectImages[currentImageIndex];
+    document.getElementById('lightbox').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+    document.getElementById('lightbox').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+function changeImage(step) {
+    currentImageIndex = (currentImageIndex + step + currentProjectImages.length) % currentProjectImages.length;
+    document.getElementById('lightbox-img').src = currentProjectImages[currentImageIndex];
+}
+
+function showCategories() {
+    document.getElementById('category-view').style.display = 'grid';
+    document.getElementById('gallery-view').style.display = 'none';
+    document.getElementById('back-btn').style.display = 'none';
+}
+
+function initBubbles() {
+    const container = document.getElementById('bubble-container');
+    for (let i = 0; i < 15; i++) {
+        const b = document.createElement('div');
+        b.className = 'bubble';
+        const size = Math.random() * 40 + 10 + 'px';
+        b.style.width = size;
+        b.style.height = size;
+        b.style.left = Math.random() * 100 + '%';
+        b.style.animationDuration = Math.random() * 5 + 7 + 's';
+        container.appendChild(b);
+    }
+}
+
+loadProjects();
+initBubbles();
+</script>
 </body>
 </html>
