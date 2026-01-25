@@ -4,11 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Freeper / Freepy | Portfolio</title>
-
-    <!-- SPEED BOOST -->
-    <link rel="preconnect" href="https://freepys.github.io">
-    <link rel="dns-prefetch" href="https://freepys.github.io">
-
     <link rel="icon" type="image/png" href="https://freepys.github.io/Freepy/favicon.png">
 
     <style>
@@ -19,7 +14,7 @@
             margin: 0;
             padding: 0;
             font-family: 'Minecraft', sans-serif;
-            background: #fff;
+            background-color: #ffffff;
             color: #333;
             text-align: center;
             overflow-x: hidden;
@@ -27,7 +22,10 @@
 
         .background-bubbles {
             position: fixed;
-            inset: 0;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             z-index: -1;
             pointer-events: none;
         }
@@ -35,30 +33,31 @@
         .bubble {
             position: absolute;
             bottom: -100px;
-            background: rgba(200,200,200,.15);
+            background: rgba(200, 200, 200, 0.15);
             border-radius: 50%;
             animation: rise 12s infinite ease-in;
         }
 
         @keyframes rise {
             0% { transform: translateY(0); opacity: 0; }
-            20% { opacity: .4; }
+            20% { opacity: 0.4; }
             100% { transform: translateY(-120vh); opacity: 0; }
         }
 
         header { padding: 80px 20px 40px; }
         h1 { font-family: 'MinecraftBold'; font-size: 3.5rem; margin: 0; }
-        .subtitle { color: #aaa; margin-top: 15px; }
+        .subtitle { color: #aaa; margin-top: 15px; font-size: 1.1rem; }
 
-        .container { max-width: 1200px; margin: auto; padding: 20px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px,1fr)); gap: 25px; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; min-height: 600px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; }
 
         .card-base {
-            background: #f9f9f9;
+            background: white;
             border: 4px solid #f2f2f2;
             cursor: pointer;
-            transition: transform .2s ease, border-color .2s;
+            transition: transform 0.2s ease, border-color 0.2s;
             overflow: hidden;
+            background-color: #f9f9f9;
         }
 
         .card-base:hover {
@@ -68,29 +67,30 @@
 
         .card-base img {
             width: 100%;
-            height: 250px;
-            object-fit: cover;
+            display: block;
             opacity: 0;
-            transform: translateZ(0);
-            will-change: opacity;
-            transition: opacity .3s ease-out;
+            transition: opacity 0.8s ease;
+            object-fit: cover;
         }
 
         .card-base img.loaded { opacity: 1; }
 
+        .project-card img { height: 250px; }
+
         .card-title {
             padding: 15px;
-            font-family: 'MinecraftBold';
-            background: #fff;
+            font-family: 'MinecraftBold', sans-serif;
+            background: white;
             border-top: 4px solid #f2f2f2;
-            font-size: .9rem;
+            font-size: 0.9rem;
         }
 
+        .gallery-card { height: 250px; }
         .gallery-card img { height: 100%; }
 
         .placeholder-card {
             border: 4px dashed #ddd !important;
-            cursor: default;
+            cursor: default !important;
             background: #fafafa;
             display: flex;
             align-items: center;
@@ -98,25 +98,34 @@
             min-height: 310px;
         }
 
-        .error-box { color: #888; }
+        .error-box { color: #888; text-align: center; padding: 20px; }
 
         .back-btn {
             display: none;
-            margin: 0 auto 40px;
+            margin: 0 auto 40px auto;
             padding: 15px 30px;
             background: #333;
-            color: #fff;
+            color: white;
             border: 4px solid #000;
             font-family: 'Minecraft';
             cursor: pointer;
-            box-shadow: 4px 4px 0 #888;
+            box-shadow: 4px 4px 0px #888;
+        }
+
+        .back-btn:hover {
+            background: #555;
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0px #000;
         }
 
         #lightbox {
             display: none;
             position: fixed;
-            inset: 0;
-            background: rgba(255,255,255,.98);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.98);
             z-index: 1000;
             justify-content: center;
             align-items: center;
@@ -125,10 +134,27 @@
         #lightbox img {
             max-width: 90%;
             max-height: 85%;
-            box-shadow: 0 0 40px rgba(0,0,0,.1);
+            border: 5px solid #fff;
+            box-shadow: 0 0 40px rgba(0,0,0,0.1);
         }
 
-        footer { margin-top: 100px; padding: 50px; color: #ccc; }
+        .nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 5rem;
+            cursor: pointer;
+            font-family: 'MinecraftBold';
+            color: #ccc;
+        }
+
+        .nav-arrow:hover { color: #333; }
+        .arrow-left { left: 2vw; }
+        .arrow-right { right: 2vw; }
+
+        footer { margin-top: 100px; padding: 50px; color: #ccc; font-size: 0.9rem; }
     </style>
 </head>
 
@@ -136,8 +162,10 @@
 <div class="background-bubbles" id="bubble-container"></div>
 
 <div id="lightbox">
-    <button onclick="closeLightbox()" style="position:absolute;top:20px;right:20px;">✕</button>
+    <button style="position:absolute; top:20px; right:20px; background:#333; color:white; padding:10px; font-family:'Minecraft'; border:none; cursor:pointer;" onclick="closeLightbox()">✕ CLOSE</button>
+    <button class="nav-arrow arrow-left" onclick="changeImage(-1)">‹</button>
     <img id="lightbox-img">
+    <button class="nav-arrow arrow-right" onclick="changeImage(1)">›</button>
 </div>
 
 <header>
@@ -146,11 +174,11 @@
 </header>
 
 <div class="container">
-    <button class="back-btn" id="back-btn" onclick="showCategories()">← BACK</button>
+    <button class="back-btn" id="back-btn" onclick="showCategories()">← BACK TO CATEGORIES</button>
     <div id="category-view" class="grid"></div>
 
     <div id="gallery-view" style="display:none;">
-        <h2 id="gallery-title"></h2>
+        <h2 id="gallery-title" style="margin-bottom:40px; font-family:'MinecraftBold';"></h2>
         <div id="gallery-images" class="grid"></div>
     </div>
 </div>
@@ -162,20 +190,9 @@ let projectsData = [];
 let currentProjectImages = [];
 let currentImageIndex = 0;
 
-/* INTERSECTION OBSERVER (ULTRA FAST) */
-const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            const img = entry.target;
-            img.src = img.dataset.src;
-            observer.unobserve(img);
-        }
-    });
-}, { rootMargin: "200px" });
-
 async function loadProjects() {
-    const res = await fetch('projects.json');
-    projectsData = await res.json();
+    const response = await fetch('projects.json');
+    projectsData = await response.json();
     renderCategories();
 }
 
@@ -185,24 +202,36 @@ function renderCategories() {
 
     projectsData.forEach((project, index) => {
         const card = document.createElement('div');
-        card.className = 'card-base';
+        card.className = 'card-base project-card';
         card.onclick = () => showGallery(index);
 
         const img = new Image();
-        img.dataset.src = project.cover;
-        img.loading = "lazy";
-        img.decoding = "async";
-        img.fetchPriority = "high";
-        img.onload = () => img.classList.add('loaded');
-        observer.observe(img);
+        img.src = project.cover;
+
+        if (img.complete) {
+            img.classList.add('loaded');
+        } else {
+            img.onload = () => img.classList.add('loaded');
+        }
+
+        img.onerror = () => {
+            img.src = 'https://placehold.co/400x250?text=Error+Loading';
+            img.classList.add('loaded');
+        };
 
         const title = document.createElement('div');
         title.className = 'card-title';
         title.textContent = project.name;
 
-        card.append(img, title);
+        card.appendChild(img);
+        card.appendChild(title);
         container.appendChild(card);
     });
+
+    const placeholder = document.createElement('div');
+    placeholder.className = 'card-base placeholder-card';
+    placeholder.innerHTML = `<div class="error-box"><span style="font-size:3rem;">?</span><div>More projects coming soon.</div></div>`;
+    container.appendChild(placeholder);
 }
 
 function showGallery(index) {
@@ -212,36 +241,54 @@ function showGallery(index) {
     document.getElementById('category-view').style.display = 'none';
     document.getElementById('gallery-view').style.display = 'block';
     document.getElementById('back-btn').style.display = 'block';
-    document.getElementById('gallery-title').textContent = project.name;
+    document.getElementById('gallery-title').innerText = project.name;
 
-    const grid = document.getElementById('gallery-images');
-    grid.innerHTML = '';
+    const imgContainer = document.getElementById('gallery-images');
+    imgContainer.innerHTML = '';
 
-    project.images.forEach((url, i) => {
-        const card = document.createElement('div');
-        card.className = 'card-base gallery-card';
+    let firstError = true;
+
+    project.images.forEach((imgUrl, imgIdx) => {
+        const item = document.createElement('div');
+        item.className = 'card-base gallery-card';
 
         const img = new Image();
-        img.dataset.src = url;
-        img.loading = "lazy";
-        img.decoding = "async";
+        img.src = imgUrl;
         img.onload = () => img.classList.add('loaded');
-        img.onclick = () => openLightbox(i);
+        img.onclick = () => openLightbox(imgIdx);
 
-        observer.observe(img);
-        card.appendChild(img);
-        grid.appendChild(card);
+        img.onerror = () => {
+            if (firstError) {
+                item.className = 'card-base placeholder-card';
+                item.innerHTML = `<div class="error-box"><span style="font-size:3rem;">?</span><div>More images soon.</div></div>`;
+                firstError = false;
+            } else {
+                item.style.display = 'none';
+            }
+        };
+
+        item.appendChild(img);
+        imgContainer.appendChild(item);
     });
+
+    window.scrollTo(0, 0);
 }
 
-function openLightbox(i) {
-    currentImageIndex = i;
-    document.getElementById('lightbox-img').src = currentProjectImages[i];
+function openLightbox(index) {
+    currentImageIndex = index;
+    document.getElementById('lightbox-img').src = currentProjectImages[currentImageIndex];
     document.getElementById('lightbox').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
 }
 
 function closeLightbox() {
     document.getElementById('lightbox').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+function changeImage(step) {
+    currentImageIndex = (currentImageIndex + step + currentProjectImages.length) % currentProjectImages.length;
+    document.getElementById('lightbox-img').src = currentProjectImages[currentImageIndex];
 }
 
 function showCategories() {
@@ -251,15 +298,16 @@ function showCategories() {
 }
 
 function initBubbles() {
-    const c = document.getElementById('bubble-container');
-    for (let i=0;i<15;i++) {
+    const container = document.getElementById('bubble-container');
+    for (let i = 0; i < 15; i++) {
         const b = document.createElement('div');
         b.className = 'bubble';
-        const s = Math.random()*40+10+'px';
-        b.style.width = b.style.height = s;
-        b.style.left = Math.random()*100+'%';
-        b.style.animationDuration = Math.random()*5+7+'s';
-        c.appendChild(b);
+        const size = Math.random() * 40 + 10 + 'px';
+        b.style.width = size;
+        b.style.height = size;
+        b.style.left = Math.random() * 100 + '%';
+        b.style.animationDuration = Math.random() * 5 + 7 + 's';
+        container.appendChild(b);
     }
 }
 
