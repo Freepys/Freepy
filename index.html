@@ -22,29 +22,29 @@
         .container { max-width: 1200px; margin: 0 auto; padding: 20px; min-height: 600px; }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; align-items: stretch; }
 
-        /* GEMEINSAME BASIS FÜR KARTEN */
+        /* KARTEN DESIGN */
         .card-base {
             background: white;
             border: 4px solid #f2f2f2;
             cursor: pointer;
-            transition: 0.2s ease;
+            transition: transform 0.2s ease, border-color 0.2s;
             overflow: hidden;
             background-color: #f9f9f9;
         }
         .card-base:hover { transform: translateY(-5px); border-color: #333; }
         
-        /* ANIMATION: Bilder blenden weich ein */
+        /* BILD-STYLING & FADE-IN ANIMATION */
         .card-base img { 
             width: 100%; 
             display: block;
             opacity: 0;
-            transition: opacity 0.6s ease;
+            transition: opacity 0.8s ease; /* Die Lade-Animation */
+            object-fit: cover;
         }
         .card-base img.loaded { opacity: 1; }
 
-        /* STARTSEITE: Karte mit Textbalken */
-        .project-card { display: flex; flex-direction: column; }
-        .project-card img { height: 250px; object-fit: cover; }
+        /* STARTSEITE: Karten mit Text-Balken */
+        .project-card img { height: 250px; }
         .card-title { 
             padding: 15px; 
             font-family: 'MinecraftBold', sans-serif;
@@ -53,17 +53,20 @@
             font-size: 0.9rem; 
         }
 
-        /* GALERIE: Reine Bildkarte OHNE Lücke */
-        .gallery-card { height: 250px; }
-        .gallery-card img { height: 100%; object-fit: cover; }
+        /* GALERIE: Reine Bilder OHNE weißen Balken */
+        .gallery-card { height: 250px; } /* Hier wird die Höhe fixiert für das Grid */
+        .gallery-card img { height: 100%; }
 
+        /* PLATZHALTER "?" */
         .placeholder-card { border: 4px dashed #ddd !important; cursor: default !important; background: #fafafa; display: flex; align-items: center; justify-content: center; min-height: 310px; }
         .error-box { color: #888; text-align: center; padding: 20px; }
 
         .back-btn { display: none; margin: 0 auto 40px auto; padding: 15px 30px; background: #333; color: white; border: 4px solid #000; font-family: 'Minecraft'; cursor: pointer; box-shadow: 4px 4px 0px #888; }
-        
+        .back-btn:hover { background: #555; transform: translate(-2px, -2px); box-shadow: 6px 6px 0px #000; }
+
+        /* LIGHTBOX */
         #lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.98); z-index: 1000; justify-content: center; align-items: center; }
-        #lightbox img { max-width: 90%; max-height: 85%; border: 5px solid #fff; }
+        #lightbox img { max-width: 90%; max-height: 85%; border: 5px solid #fff; box-shadow: 0 0 40px rgba(0,0,0,0.1); }
         .nav-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 5rem; cursor: pointer; font-family: 'MinecraftBold'; color: #ccc; }
         .nav-arrow:hover { color: #333; }
         .arrow-left { left: 2vw; } .arrow-right { right: 2vw; }
@@ -73,8 +76,9 @@
 </head>
 <body>
     <div class="background-bubbles" id="bubble-container"></div>
+    
     <div id="lightbox">
-        <button style="position:absolute; top:20px; right:20px; background:#333; color:white; padding:10px; font-family:'Minecraft';" onclick="closeLightbox()">✕ CLOSE</button>
+        <button style="position:absolute; top:20px; right:20px; background:#333; color:white; padding:10px; font-family:'Minecraft'; border:none; cursor:pointer;" onclick="closeLightbox()">✕ CLOSE</button>
         <button class="nav-arrow arrow-left" onclick="changeImage(-1)">‹</button>
         <img id="lightbox-img" src="">
         <button class="nav-arrow arrow-right" onclick="changeImage(1)">›</button>
@@ -93,6 +97,7 @@
             <div id="gallery-images" class="grid"></div>
         </div>
     </div>
+
     <footer>2026 Freeper / Freepy</footer>
 
     <script>
@@ -105,12 +110,13 @@
                 const response = await fetch('projects.json');
                 projectsData = await response.json();
                 renderCategories();
-            } catch (err) { console.error("Error loading JSON"); }
+            } catch (err) { console.error("Could not load projects.json"); }
         }
 
         function renderCategories() {
             const container = document.getElementById('category-view');
             container.innerHTML = '';
+            
             projectsData.forEach((project, index) => {
                 const card = document.createElement('div');
                 card.className = 'card-base project-card';
@@ -118,15 +124,18 @@
                 
                 const img = new Image();
                 img.src = project.cover;
-                img.onload = () => img.classList.add('loaded');
+                img.onload = () => img.classList.add('loaded'); // Trigger Animation
+                img.onerror = () => { img.src = 'https://placehold.co/400x250?text=Error+Loading'; img.classList.add('loaded'); };
                 
                 card.appendChild(img);
                 card.innerHTML += `<div class="card-title">${project.name}</div>`;
                 container.appendChild(card);
             });
+
+            // "More projects" Platzhalter
             const placeholder = document.createElement('div');
             placeholder.className = 'card-base placeholder-card';
-            placeholder.innerHTML = `<div class="error-box"><span style="font-size:3rem;">?</span><div>More projects coming soon.</div></div>`;
+            placeholder.innerHTML = `<div class="error-box"><span style="font-size:3rem; margin-bottom:10px; display:block;">?</span><div>More projects coming soon.</div></div>`;
             container.appendChild(placeholder);
         }
 
@@ -140,6 +149,7 @@
             
             const imgContainer = document.getElementById('gallery-images');
             imgContainer.innerHTML = '';
+            let firstError = true;
 
             project.images.forEach((imgUrl, imgIdx) => {
                 const item = document.createElement('div');
@@ -147,8 +157,19 @@
                 
                 const img = new Image();
                 img.src = imgUrl;
-                img.onload = () => img.classList.add('loaded');
+                img.onload = () => img.classList.add('loaded'); // Trigger Animation
                 img.onclick = () => openLightbox(imgIdx);
+                
+                img.onerror = function() {
+                    if (firstError) {
+                        item.className = 'card-base placeholder-card';
+                        item.style.height = "250px";
+                        item.innerHTML = `<div class="error-box"><span style="font-size:3rem; display:block;">?</span><div style="font-size:0.8rem;">More images soon.</div></div>`;
+                        firstError = false;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                };
                 
                 item.appendChild(img);
                 imgContainer.appendChild(item);
@@ -177,6 +198,7 @@
             document.getElementById('category-view').style.display = 'grid';
             document.getElementById('gallery-view').style.display = 'none';
             document.getElementById('back-btn').style.display = 'none';
+            window.scrollTo(0, 0);
         }
 
         function initBubbles() {
@@ -191,9 +213,11 @@
                 container.appendChild(b);
             }
         }
+
         loadProjects();
         initBubbles();
 
+        // Keyboard Support
         document.addEventListener('keydown', (e) => {
             if (document.getElementById('lightbox').style.display === 'flex') {
                 if (e.key === "ArrowRight") changeImage(1);
