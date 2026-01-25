@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Freeper / Freepy | Portfolio</title>
-    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="icon" type="image/png" href="https://freepys.github.io/Freepy/favicon.png">
     <style>
-        /* --- SCHRIFTARTEN --- */
         @font-face { font-family: 'Minecraft'; src: url('MinecraftRegular-Bmg3.otf') format('opentype'); }
         @font-face { font-family: 'MinecraftBold'; src: url('MinecraftBold-nMK1.otf') format('opentype'); font-weight: bold; }
 
@@ -21,7 +20,14 @@
         .subtitle { color: #aaa; margin-top: 15px; font-size: 1.1rem; }
 
         .container { max-width: 1200px; margin: 0 auto; padding: 20px; min-height: 600px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; align-items: stretch; }
+        
+        /* FIX: Besseres Grid, das bei 2 Bildern nicht "hässlich" wird */
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+            gap: 20px; 
+            align-items: start; 
+        }
 
         .card {
             background: white;
@@ -31,56 +37,46 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            height: 100%;
-            box-sizing: border-box;
+            position: relative;
+            background-color: #f9f9f9;
         }
         .card:hover { transform: translateY(-5px); border-color: #333; }
         
-        /* FIX: Bild füllt Rahmen komplett aus (keine Luft) */
+        /* FIX: Bilder füllen den Container OHNE Lücken */
         .card img { 
             width: 100%; 
             height: 250px; 
-            object-fit: cover; /* Schneidet Ränder ab, füllt alles aus */
+            object-fit: cover; 
             display: block;
-            content-visibility: auto;
-            image-rendering: auto; /* Scharfe Minecraft-Kanten */
+            opacity: 0;
+            transition: opacity 0.5s ease; /* Weiches Einblenden beim Laden */
         }
         
+        .card img.loaded { opacity: 1; }
+
         .card-title { 
-            flex-grow: 1;
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            padding: 15px 10px; 
+            padding: 15px; 
             font-family: 'MinecraftBold', sans-serif;
-            font-weight: bold; 
             background: white; 
             border-top: 4px solid #f2f2f2; 
             font-size: 0.9rem; 
         }
 
-        .placeholder-card { border: 4px dashed #ddd !important; cursor: default !important; background: #fafafa; }
-        .error-box { min-height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #888; text-align: center; padding: 20px; }
+        .error-box { height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #888; text-align: center; }
 
-        .back-btn { display: none; margin: 0 auto 40px auto; padding: 15px 30px; background: #333; color: white; border: 4px solid #000; font-family: 'Minecraft'; cursor: pointer; box-shadow: 4px 4px 0px #888; transition: 0.2s; }
+        .back-btn { display: none; margin: 0 auto 40px auto; padding: 15px 30px; background: #333; color: white; border: 4px solid #000; font-family: 'Minecraft'; cursor: pointer; box-shadow: 4px 4px 0px #888; }
         .back-btn:hover { background: #555; transform: translate(-2px, -2px); box-shadow: 6px 6px 0px #000; }
 
-        /* LIGHTBOX OPTIMIERUNG */
+        /* LIGHTBOX */
         #lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.98); z-index: 1000; justify-content: center; align-items: center; }
-        #lightbox img { 
-            max-width: 90%; 
-            max-height: 90%; 
-            border: 5px solid #fff; 
-            box-shadow: 0 0 40px rgba(0,0,0,0.1); 
-            object-fit: contain; /* In der Großansicht nichts abschneiden */
-        }
+        #lightbox img { max-width: 90%; max-height: 85%; border: 5px solid #fff; box-shadow: 0 0 40px rgba(0,0,0,0.1); }
         
-        .nav-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: none; color: #ccc; border: none; font-size: 5rem; padding: 20px; cursor: pointer; font-family: 'MinecraftBold'; transition: 0.2s; user-select: none; }
-        .nav-arrow:hover { color: #333; scale: 1.1; }
+        .nav-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: none; color: #ccc; border: none; font-size: 5rem; cursor: pointer; font-family: 'MinecraftBold'; }
+        .nav-arrow:hover { color: #333; }
         .arrow-left { left: 2vw; }
         .arrow-right { right: 2vw; }
 
-        .close-lb { position: absolute; top: 20px; right: 20px; font-size: 1rem; cursor: pointer; background: #333; color: white; border: none; padding: 10px 20px; font-family: 'Minecraft'; z-index: 1010; }
+        .close-lb { position: absolute; top: 20px; right: 20px; background: #333; color: white; border: none; padding: 10px 20px; cursor: pointer; font-family: 'Minecraft'; }
 
         footer { margin-top: 100px; padding: 50px; color: #ccc; font-size: 0.9rem; }
     </style>
@@ -97,7 +93,7 @@
 
     <header>
         <h1>Freeper / Freepy</h1>
-        <p class="subtitle">Freepy's Portfolio, with builds inspired by SmokePVP.</p>
+        <p class="subtitle">Freepy's Portfolio, inspired by SmokePVP.</p>
     </header>
 
     <div class="container">
@@ -131,16 +127,15 @@
                 const card = document.createElement('div');
                 card.className = 'card';
                 card.onclick = () => showGallery(index);
-                card.innerHTML = `
-                    <img src="${project.cover}" loading="eager" onerror="this.src='https://placehold.co/400x250?text=Image+Missing'">
-                    <div class="card-title">${project.name}</div>
-                `;
+                
+                const img = new Image();
+                img.src = project.cover;
+                img.onload = () => img.classList.add('loaded');
+                
+                card.appendChild(img);
+                card.innerHTML += `<div class="card-title">${project.name}</div>`;
                 container.appendChild(card);
             });
-            const placeholder = document.createElement('div');
-            placeholder.className = 'card placeholder-card';
-            placeholder.innerHTML = `<div class="error-box"><span style="font-size:3rem; margin-bottom:10px;">?</span><div>More coming soon.<br></div></div>`;
-            container.appendChild(placeholder);
         }
 
         function showGallery(index) {
@@ -153,26 +148,17 @@
             
             const imgContainer = document.getElementById('gallery-images');
             imgContainer.innerHTML = '';
-            let errorOccurred = false;
 
             project.images.forEach((imgUrl, imgIdx) => {
                 const item = document.createElement('div');
                 item.className = 'card';
-                const img = document.createElement('img');
                 
-                // Maximale Performance: Bilder die im Sichtfeld sind sofort laden
-                img.loading = (imgIdx < 6) ? "eager" : "lazy"; 
+                const img = new Image();
                 img.src = imgUrl;
-
-                img.onerror = function() {
-                    if (!errorOccurred) {
-                        item.className = 'card placeholder-card';
-                        item.innerHTML = `<div class="error-box"><span style="font-size:3rem; margin-bottom:10px;">?</span><div>This is a placeholder.<br>More images coming soon.</div></div>`;
-                        errorOccurred = true;
-                    } else { item.style.display = 'none'; }
-                };
-
+                img.loading = "lazy";
+                img.onload = () => img.classList.add('loaded');
                 img.onclick = () => openLightbox(imgIdx);
+                
                 item.appendChild(img);
                 imgContainer.appendChild(item);
             });
@@ -181,10 +167,9 @@
 
         function openLightbox(index) {
             currentImageIndex = index;
-            updateLightboxImage();
+            document.getElementById('lightbox-img').src = currentProjectImages[currentImageIndex];
             document.getElementById('lightbox').style.display = 'flex';
             document.body.style.overflow = 'hidden';
-            preloadNext(); // Nächstes Bild sofort vorladen
         }
 
         function closeLightbox() {
@@ -193,38 +178,14 @@
         }
 
         function changeImage(step) {
-            currentImageIndex += step;
-            if (currentImageIndex >= currentProjectImages.length) currentImageIndex = 0;
-            if (currentImageIndex < 0) currentImageIndex = currentProjectImages.length - 1;
-            updateLightboxImage();
-            preloadNext();
+            currentImageIndex = (currentImageIndex + step + currentProjectImages.length) % currentProjectImages.length;
+            document.getElementById('lightbox-img').src = currentProjectImages[currentImageIndex];
         }
-
-        function updateLightboxImage() {
-            const lbImg = document.getElementById('lightbox-img');
-            lbImg.src = currentProjectImages[currentImageIndex];
-        }
-
-        // Lädt das nächste Bild schon mal heimlich im Hintergrund
-        function preloadNext() {
-            let next = (currentImageIndex + 1) % currentProjectImages.length;
-            const img = new Image();
-            img.src = currentProjectImages[next];
-        }
-
-        document.addEventListener('keydown', (e) => {
-            if (document.getElementById('lightbox').style.display === 'flex') {
-                if (e.key === "ArrowRight") changeImage(1);
-                if (e.key === "ArrowLeft") changeImage(-1);
-                if (e.key === "Escape") closeLightbox();
-            }
-        });
 
         function showCategories() {
             document.getElementById('category-view').style.display = 'grid';
             document.getElementById('gallery-view').style.display = 'none';
             document.getElementById('back-btn').style.display = 'none';
-            window.scrollTo(0, 0);
         }
 
         function initBubbles() {
@@ -236,7 +197,6 @@
                 b.style.width = size; b.style.height = size;
                 b.style.left = Math.random() * 100 + '%';
                 b.style.animationDuration = Math.random() * 5 + 7 + 's';
-                b.style.animationDelay = Math.random() * 5 + 's';
                 container.appendChild(b);
             }
         }
