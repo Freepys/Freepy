@@ -11,13 +11,13 @@
   {
     "name": "Dream station makeoff",
     "folder": "dreamstation",
-    "cover": "img/dreamstation/start/dream.png",
+    "cover": "img/dreamstation/start/dreamstation.png",
     "images": ["img/dreamstation/1.png", "img/dreamstation/2.png"]
   },
   {
     "name": "Trees",
     "folder": "Trees",
-    "cover": "img/Trees/Start/trees.png",
+    "cover": "img/Trees/start/trees.png",
     "images": ["img/Trees/tree1.png"]
   },
   {
