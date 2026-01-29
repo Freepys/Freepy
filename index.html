@@ -20,6 +20,36 @@
             overflow-x: hidden;
         }
 
+        /* Admin-Styles */
+        #admin-login-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+        }
+        .admin-modal {
+            background: white;
+            padding: 30px;
+            border: 4px solid #333;
+            box-shadow: 10px 10px 0px #5865F2;
+        }
+        .admin-modal input {
+            display: block; margin: 10px auto;
+            padding: 10px; font-family: 'Minecraft';
+            border: 2px solid #eee;
+        }
+        #admin-dashboard {
+            display: none;
+            background: #f0f0f0;
+            border: 4px dashed #5865F2;
+            margin: 20px auto;
+            padding: 20px;
+            max-width: 1160px;
+        }
+
         .background-bubbles {
             position: fixed;
             top: 0;
@@ -58,6 +88,9 @@
             transition: transform 0.2s ease, border-color 0.2s;
             overflow: hidden;
             background-color: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+            height: 100%; /* Stellt sicher, dass Karten innerhalb des Grids wachsen */
         }
 
         .card-base:hover {
@@ -71,22 +104,19 @@
             opacity: 0;
             transition: opacity 0.8s ease;
             object-fit: cover;
+            height: 250px;
         }
 
         .card-base img.loaded { opacity: 1; }
-
-        .project-card img { height: 250px; }
 
         .card-title {
             padding: 15px;
             font-family: 'MinecraftBold', sans-serif;
             background: white;
-            box-shadow: inset 0 4px 0 #f2f2f2;
             font-size: 0.9rem;
+            margin-top: auto; /* Klebt den Titel an den Boden der Karte */
+            border-top: 4px solid #f2f2f2;
         }
-
-        .gallery-card { height: 250px; }
-        .gallery-card img { height: 100%; }
 
         .placeholder-card {
             border: 4px dashed #ddd !important;
@@ -95,10 +125,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 310px;
+            min-height: 310px; /* Passt sich der Höhe der Bild-Karten an */
         }
-
-        .error-box { color: #888; text-align: center; padding: 20px; }
 
         .back-btn {
             display: none;
@@ -112,65 +140,41 @@
             box-shadow: 4px 4px 0px #888;
         }
 
-        .back-btn:hover {
-            background: #555;
-            transform: translate(-2px, -2px);
-            box-shadow: 6px 6px 0px #000;
-        }
-
         #lightbox {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(255, 255, 255, 0.98);
             z-index: 1000;
-            justify-content: center;
-            align-items: center;
+            justify-content: center; align-items: center;
         }
 
-        #lightbox img {
-            max-width: 90%;
-            max-height: 85%;
-            border: 5px solid #fff;
-            box-shadow: 0 0 40px rgba(0,0,0,0.1);
-        }
+        #lightbox img { max-width: 90%; max-height: 85%; border: 5px solid #fff; box-shadow: 0 0 40px rgba(0,0,0,0.1); }
 
-        .nav-arrow {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            font-size: 5rem;
-            cursor: pointer;
-            font-family: 'MinecraftBold';
-            color: #ccc;
-        }
-
-        .nav-arrow:hover { color: #333; }
+        .nav-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 5rem; cursor: pointer; font-family: 'MinecraftBold'; color: #ccc; }
         .arrow-left { left: 2vw; }
         .arrow-right { right: 2vw; }
 
         footer { margin-top: 100px; padding: 20px 50px 0 50px; color: #ccc; font-size: 0.9rem; }
-        
-        /* Discord Text Style */
-        .discord-info {
-            color: #5865F2; /* Discord Blurple */
-            font-size: 0.9rem;
-            margin-bottom: 50px;
-            font-family: 'Minecraft', sans-serif;
-        }
+        .discord-info { color: #5865F2; font-size: 0.9rem; margin-bottom: 50px; }
     </style>
 </head>
 
 <body>
 <div class="background-bubbles" id="bubble-container"></div>
 
+<div id="admin-login-overlay">
+    <div class="admin-modal">
+        <h3 style="font-family:'MinecraftBold'">ADMIN ACCESS</h3>
+        <input type="text" id="admin-user" placeholder="Username">
+        <input type="password" id="admin-pass" placeholder="Password">
+        <button onclick="checkAdmin()" style="background:#333; color:white; padding:10px; font-family:'Minecraft'; border:none; cursor:pointer; width:100%;">LOGIN</button>
+        <button onclick="closeAdmin()" style="background:none; border:none; color:red; cursor:pointer; margin-top:10px;">Cancel</button>
+    </div>
+</div>
+
 <div id="lightbox">
-    <button style="position:absolute; top:20px; right:20px; background:#333; color:white; padding:10px; font-family:'Minecraft'; border:none; cursor:pointer;" onclick="closeLightbox()">✕ CLOSE</button>
+    <button style="position:absolute; top:20px; right:20px; background:#333; color:white; padding:10px; border:none; cursor:pointer;" onclick="closeLightbox()">✕ CLOSE</button>
     <button class="nav-arrow arrow-left" onclick="changeImage(-1)">‹</button>
     <img id="lightbox-img">
     <button class="nav-arrow arrow-right" onclick="changeImage(1)">›</button>
@@ -180,6 +184,12 @@
     <h1>Freeper / Freepy</h1>
     <p class="subtitle">Freepy's Portfolio, inspired by SmokePVP.</p>
 </header>
+
+<div id="admin-dashboard">
+    <h2 style="font-family:'MinecraftBold'">Welcome, Freeperr</h2>
+    <p>Admin Mode Active.</p>
+    <button onclick="logoutAdmin()" style="background:red; color:white; border:none; padding:10px; font-family:'Minecraft'; cursor:pointer;">Logout</button>
+</div>
 
 <div class="container">
     <button class="back-btn" id="back-btn" onclick="showCategories()">← BACK TO CATEGORIES</button>
@@ -198,11 +208,42 @@
 let projectsData = [];
 let currentProjectImages = [];
 let currentImageIndex = 0;
+let keys = [];
+const adminCode = "ADMIN";
 
+// --- Admin Logik ---
+document.addEventListener('keydown', (e) => {
+    keys.push(e.key.toUpperCase());
+    keys = keys.slice(-adminCode.length);
+    if (keys.join('') === adminCode) {
+        document.getElementById('admin-login-overlay').style.display = 'flex';
+        keys = [];
+    }
+});
+
+function closeAdmin() { document.getElementById('admin-login-overlay').style.display = 'none'; }
+
+function checkAdmin() {
+    const user = document.getElementById('admin-user').value;
+    const pass = document.getElementById('admin-pass').value;
+    // Ändere 'dein-passwort' hier zu deinem Wunsch-Passwort
+    if (user === "Admin Freeperr" && pass === "dein-passwort") {
+        document.getElementById('admin-login-overlay').style.display = 'none';
+        document.getElementById('admin-dashboard').style.display = 'block';
+    } else {
+        alert("Falsche Daten!");
+    }
+}
+
+function logoutAdmin() { location.reload(); }
+
+// --- Portfolio Logik ---
 async function loadProjects() {
-    const response = await fetch('projects.json');
-    projectsData = await response.json();
-    renderCategories();
+    try {
+        const response = await fetch('projects.json');
+        projectsData = await response.json();
+        renderCategories();
+    } catch (e) { console.error("JSON Error", e); }
 }
 
 function renderCategories() {
@@ -211,22 +252,12 @@ function renderCategories() {
 
     projectsData.forEach((project, index) => {
         const card = document.createElement('div');
-        card.className = 'card-base project-card';
+        card.className = 'card-base';
         card.onclick = () => showGallery(index);
 
         const img = new Image();
         img.src = project.cover;
-
-        if (img.complete) {
-            img.classList.add('loaded');
-        } else {
-            img.onload = () => img.classList.add('loaded');
-        }
-
-        img.onerror = () => {
-            img.src = 'https://placehold.co/400x250?text=Error+Loading';
-            img.classList.add('loaded');
-        };
+        img.onload = () => img.classList.add('loaded');
 
         const title = document.createElement('div');
         title.className = 'card-title';
@@ -239,14 +270,13 @@ function renderCategories() {
 
     const placeholder = document.createElement('div');
     placeholder.className = 'card-base placeholder-card';
-    placeholder.innerHTML = `<div class="error-box"><span style="font-size:3rem;">?</span><div>More projects coming soon.</div></div>`;
+    placeholder.innerHTML = `<div style="text-align:center; color:#888;"><span style="font-size:3rem;">?</span><br>More coming soon.</div>`;
     container.appendChild(placeholder);
 }
 
 function showGallery(index) {
     const project = projectsData[index];
     currentProjectImages = project.images;
-
     document.getElementById('category-view').style.display = 'none';
     document.getElementById('gallery-view').style.display = 'block';
     document.getElementById('back-btn').style.display = 'block';
@@ -255,31 +285,16 @@ function showGallery(index) {
     const imgContainer = document.getElementById('gallery-images');
     imgContainer.innerHTML = '';
 
-    let firstError = true;
-
     project.images.forEach((imgUrl, imgIdx) => {
         const item = document.createElement('div');
-        item.className = 'card-base gallery-card';
-
+        item.className = 'card-base';
         const img = new Image();
         img.src = imgUrl;
         img.onload = () => img.classList.add('loaded');
         img.onclick = () => openLightbox(imgIdx);
-
-        img.onerror = () => {
-            if (firstError) {
-                item.className = 'card-base placeholder-card';
-                item.innerHTML = `<div class="error-box"><span style="font-size:3rem;">?</span><div>More images soon.</div></div>`;
-                firstError = false;
-            } else {
-                item.style.display = 'none';
-            }
-        };
-
         item.appendChild(img);
         imgContainer.appendChild(item);
     });
-
     window.scrollTo(0, 0);
 }
 
@@ -312,8 +327,7 @@ function initBubbles() {
         const b = document.createElement('div');
         b.className = 'bubble';
         const size = Math.random() * 40 + 10 + 'px';
-        b.style.width = size;
-        b.style.height = size;
+        b.style.width = size; b.style.height = size;
         b.style.left = Math.random() * 100 + '%';
         b.style.animationDuration = Math.random() * 5 + 7 + 's';
         container.appendChild(b);
