@@ -1,65 +1,29 @@
 [
   {
     "name": "Spooky Mansion in Forest",
+    "folder": "spookymansion",
     "cover": "img/spookymansion/Start/spooky.png",
     "images": [
-      "img/spookymansion/image1.png",
-      "img/spookymansion/image2.png",
-      "img/spookymansion/image3.png",
-      "img/spookymansion/image4.png",
-      "img/spookymansion/image5.png",
-      "img/spookymansion/image6.png",
-      "img/spookymansion/image7.png",
-      "img/spookymansion/image8.png",
-      "img/spookymansion/image9.png"
+      "img/spookymansion/spooky.png",
+      "img/spookymansion/image1.png"
     ]
   },
   {
     "name": "Dream station makeoff",
-    "cover": "img/dreamstation/start/dreamstation.png",
-    "images": [
-      "img/dreamstation/image1.png",
-      "img/dreamstation/image2.png",
-      "img/dreamstation/image3.png",
-      "img/dreamstation/image4.png"
-    ]
+    "folder": "dreamstation",
+    "cover": "img/dreamstation/start/dream.png",
+    "images": ["img/dreamstation/1.png", "img/dreamstation/2.png"]
   },
   {
     "name": "Trees",
-    "cover": "img/Trees/Start/Trees.png",
-    "images": [
-      "img/Trees/image1.png",
-      "img/Trees/image2.png",
-      "img/Trees/image3.png",
-      "img/Trees/image4.png",
-      "img/Trees/image5.png",
-      "img/Trees/image6.png",
-      "img/Trees/image7.png",
-      "img/Trees/image8.png",
-      "img/Trees/image9.png",
-      "img/Trees/image10.png",
-      "img/Trees/image11.png",
-      "img/Trees/image12.png",
-      "img/Trees/image13.png",
-      "img/Trees/image14.png",
-      "img/Trees/image15.png",
-      "img/Trees/image16.png",
-      "img/Trees/image17.png",
-      "img/Trees/image18.png"
-    ]
+    "folder": "Trees",
+    "cover": "img/Trees/Start/trees.png",
+    "images": ["img/Trees/tree1.png"]
   },
   {
     "name": "Snowy - Landscape",
-    "cover": "img/Snowy/Start/Snowy.png",
-    "images": [
-      "img/Snowy/image1.png",
-      "img/Snowy/image2.png",
-      "img/Snowy/image3.png",
-      "img/Snowy/image4.png",
-      "img/Snowy/image5.png",
-      "img/Snowy/image6.png",
-      "img/Snowy/image7.png",
-      "img/Snowy/image8.png"
-    ]
+    "folder": "Snowy",
+    "cover": "img/snowy/Start/snowy.png",
+    "images": ["img/snowy/snowy1.png"]
   }
 ]
