@@ -2,21 +2,40 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const app = express();
-const PORT = 3000;
 
-// Statische Dateien (HTML, Fonts, Bilder) verfügbar machen
+// Render gibt den Port automatisch vor, lokal nutzen wir 3000
+const PORT = process.env.PORT || 3000;
+
+// Erlaubt dem Server, JSON-Daten zu empfangen (für den Login)
+app.use(express.json());
+
+// Macht alle deine Dateien (HTML, CSS, Bilder) öffentlich zugänglich
 app.use(express.static('./'));
 
+// --- ADMIN DATEN (Greift auf die Render Environment Variables zu) ---
+const ADMIN_USER = process.env.ADMIN_USER || "Admin Freeperr";
+const ADMIN_PASS = process.env.ADMIN_PASS || "fallback-passwort"; 
+
 /**
- * API-Endpunkt: Scannt den 'img' Ordner und gibt alle Projekte zurück
+ * Login Endpunkt: Prüft Benutzername und Passwort sicher auf dem Server
+ */
+app.post('/api/login', (req, res) => {
+    const { user, pass } = req.body;
+    if (user === ADMIN_USER && pass === ADMIN_PASS) {
+        res.json({ success: true });
+    } else {
+        res.status(401).json({ success: false, message: "Falsche Zugangsdaten!" });
+    }
+});
+
+/**
+ * API: Scannt den 'img' Ordner und erstellt automatisch die Projektliste
  */
 app.get('/api/projects', (req, res) => {
     const imgDir = path.join(__dirname, 'img');
     
-    // Falls der img-Ordner nicht existiert, leere Liste senden
-    if (!fs.existsSync(imgDir)) {
-        return res.json([]);
-    }
+    // Falls kein img-Ordner da ist, sende leere Liste
+    if (!fs.existsSync(imgDir)) return res.json([]);
 
     const projects = [];
     const folders = fs.readdirSync(imgDir);
@@ -24,36 +43,34 @@ app.get('/api/projects', (req, res) => {
     folders.forEach(folder => {
         const folderPath = path.join(imgDir, folder);
         
-        // Nur echte Verzeichnisse scannen
+        // Nur Ordner verarbeiten
         if (fs.lstatSync(folderPath).isDirectory()) {
             
-            // 1. Cover-Bild suchen (im Unterordner "start")
+            // 1. Cover im Unterordner "start" suchen
             const startDir = path.join(folderPath, 'start');
             let coverImg = "";
-            
             if (fs.existsSync(startDir)) {
                 const startFiles = fs.readdirSync(startDir)
-                    .filter(f => f.toLowerCase().endsWith('.png'));
+                    .filter(f => f.toLowerCase().endsWith('.png') || f.toLowerCase().endsWith('.jpg'));
                 if (startFiles.length > 0) {
-                    // Nimmt das erste PNG im start-Ordner als Cover
                     coverImg = `img/${folder}/start/${startFiles[0]}`;
                 }
             }
 
-            // 2. Galerie-Bilder suchen (alle PNGs im Projekt-Hauptordner)
+            // 2. Galerie-Bilder (alle PNG/JPG direkt im Projektordner)
             const images = fs.readdirSync(folderPath)
-                .filter(file => file.toLowerCase().endsWith('.png'))
+                .filter(file => file.toLowerCase().endsWith('.png') || file.toLowerCase().endsWith('.jpg'))
                 .sort((a, b) => {
-                    // Extrahiert Zahlen aus dem Dateinamen für korrekte Sortierung (1, 2, 10...)
+                    // Sortiert Zahlen in Dateinamen (image1, image2, image10...) korrekt
                     const numA = parseInt(a.replace(/\D/g, '')) || 0;
                     const numB = parseInt(b.replace(/\D/g, '')) || 0;
                     return numA - numB;
                 })
                 .map(file => `img/${folder}/${file}`);
 
-            // Projekt zum Array hinzufügen
+            // Projekt hinzufügen
             projects.push({
-                name: folder.replace(/_/g, ' '), // Ersetzt Unterstriche durch Leerzeichen für die Anzeige
+                name: folder.replace(/_/g, ' '), // Unterstriche zu Leerzeichen
                 cover: coverImg,
                 images: images
             });
@@ -67,6 +84,6 @@ app.get('/api/projects', (req, res) => {
 app.listen(PORT, () => {
     console.log(`================================================`);
     console.log(`MINECRAFT PORTFOLIO SERVER GESTARTET!`);
-    console.log(`Link: http://localhost:${PORT}`);
+    console.log(`Port: ${PORT}`);
     console.log(`================================================`);
 });

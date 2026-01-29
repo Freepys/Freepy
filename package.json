@@ -1,6 +1,12 @@
 {
+  "name": "freepy-portfolio",
+  "version": "1.0.0",
+  "description": "Minecraft Portfolio",
+  "main": "Server.js",
+  "scripts": {
+    "start": "node Server.js"
+  },
   "dependencies": {
-    "express": "^5.2.1",
-    "serverless-http": "^4.0.0"
+    "express": "^4.18.2"
   }
 }
