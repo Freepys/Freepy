@@ -3,300 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Freeper / Freepy | Portfolio</title>
-    <link rel="icon" type="image/png" href="https://freepys.github.io/Freepy/favicon.png">
-
+    <title>Freeper Portfolio | Admin</title>
+    <link rel="icon" type="image/png" href="favicon.png">
     <style>
-        @font-face { font-family: 'Minecraft'; src: url('MinecraftRegular-Bmg3.otf') format('opentype'); }
-        @font-face { font-family: 'MinecraftBold'; src: url('MinecraftBold-nMK1.otf') format('opentype'); font-weight: bold; }
-
-        body {
-            margin: 0; padding: 0;
-            font-family: 'Minecraft', sans-serif;
-            background-color: #ffffff; color: #333;
-            text-align: center; overflow-x: hidden;
-        }
-
-        /* Admin-Styles */
-        #admin-login-overlay {
-            display: none; position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 3000;
-            justify-content: center; align-items: center;
-        }
-        .admin-modal {
-            background: white; padding: 30px;
-            border: 4px solid #333; box-shadow: 10px 10px 0px #5865F2;
-        }
-        .admin-modal input {
-            display: block; margin: 10px auto;
-            padding: 10px; font-family: 'Minecraft';
-            border: 2px solid #eee;
-        }
-        #admin-dashboard {
-            display: none; background: #f0f0f0;
-            border: 4px dashed #5865F2; margin: 20px auto;
-            padding: 20px; max-width: 1160px;
-        }
-
-        .background-bubbles {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1; pointer-events: none;
-        }
-        .bubble {
-            position: absolute; bottom: -100px;
-            background: rgba(200, 200, 200, 0.15); border-radius: 50%;
-            animation: rise 12s infinite ease-in;
-        }
-        @keyframes rise {
-            0% { transform: translateY(0); opacity: 0; }
-            20% { opacity: 0.4; }
-            100% { transform: translateY(-120vh); opacity: 0; }
-        }
-
-        header { padding: 80px 20px 40px; }
-        h1 { font-family: 'MinecraftBold'; font-size: 3.5rem; margin: 0; }
-        .subtitle { color: #aaa; margin-top: 15px; font-size: 1.1rem; }
-
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; min-height: 600px; }
+        @font-face { font-family: 'Minecraft'; src: url('MinecraftRegular-Bmg3.otf'); }
+        body { font-family: 'Minecraft', sans-serif; background: #fff; text-align: center; margin: 0; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; padding: 20px; }
+        .card { border: 4px solid #eee; padding: 10px; cursor: pointer; transition: 0.2s; }
+        .card:hover { border-color: #333; }
+        .card img { width: 100%; height: 200px; object-fit: cover; }
         
-        .grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
-            gap: 25px;
-            grid-auto-rows: 1fr; 
-        }
-
-        .card-base {
-            background: white; border: 4px solid #f2f2f2;
-            cursor: pointer; transition: transform 0.2s ease, border-color 0.2s;
-            overflow: hidden; display: flex; flex-direction: column; height: 100%;
-        }
-        .card-base:hover { transform: translateY(-5px); border-color: #333; }
-        .card-base img { width: 100%; display: block; opacity: 0; transition: opacity 0.8s ease; object-fit: cover; height: 250px; }
-        .card-base img.loaded { opacity: 1; }
-
-        .card-title {
-            padding: 15px; font-family: 'MinecraftBold', sans-serif;
-            background: white; font-size: 0.9rem; flex-grow: 1;
-            display: flex; align-items: center; justify-content: center;
-            border-top: 4px solid #f2f2f2;
-        }
-
-        .placeholder-card {
-            border: 4px dashed #ddd !important; cursor: default !important;
-            background: #fafafa; justify-content: center; min-height: 310px;
-        }
-
-        .back-btn {
-            display: none; margin: 0 auto 40px auto; padding: 15px 30px;
-            background: #333; color: white; border: 4px solid #000;
-            font-family: 'Minecraft'; cursor: pointer; box-shadow: 4px 4px 0px #888;
-        }
-
-        #lightbox {
-            display: none; position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 255, 255, 0.98); z-index: 1000;
-            justify-content: center; align-items: center;
-        }
-        #lightbox img { max-width: 90%; max-height: 85%; border: 5px solid #fff; box-shadow: 0 0 40px rgba(0,0,0,0.1); }
-
-        .nav-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 5rem; cursor: pointer; font-family: 'MinecraftBold'; color: #ccc; }
-        .arrow-left { left: 2vw; }
-        .arrow-right { right: 2vw; }
-
-        footer { margin-top: 100px; padding: 20px 50px 0 50px; color: #ccc; font-size: 0.9rem; }
-        .discord-info { color: #5865F2; font-size: 0.9rem; margin-bottom: 50px; }
+        /* Admin Dashboard */
+        #admin-dashboard { display: none; background: #f9f9f9; border-bottom: 4px solid #5865F2; padding: 30px; }
+        .admin-tool { background: white; border: 3px solid #333; padding: 15px; margin: 10px auto; max-width: 600px; }
+        .drop-zone { border: 2px dashed #ccc; padding: 20px; margin: 10px 0; cursor: pointer; }
+        .drop-zone.hover { background: #e1e4ff; border-color: #5865F2; }
+        
+        #admin-login-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center; }
+        .btn { background: #333; color: white; border: none; padding: 10px 20px; font-family: 'Minecraft'; cursor: pointer; }
+        .btn-red { background: #ff4747; }
     </style>
 </head>
-
 <body>
-<div class="background-bubbles" id="bubble-container"></div>
 
 <div id="admin-login-overlay">
-    <div class="admin-modal">
-        <h3 style="font-family:'MinecraftBold'">ADMIN ACCESS</h3>
-        <input type="text" id="admin-user" placeholder="Username">
-        <input type="password" id="admin-pass" placeholder="Password">
-        <button onclick="checkAdmin()" style="background:#333; color:white; padding:10px; font-family:'Minecraft'; border:none; cursor:pointer; width:100%;">LOGIN</button>
-        <button onclick="closeAdmin()" style="background:none; border:none; color:red; cursor:pointer; margin-top:10px;">Cancel</button>
+    <div style="background:white; padding:30px; border:4px solid #333;">
+        <h2>ADMIN LOGIN</h2>
+        <input type="text" id="admin-user" placeholder="User"><br><br>
+        <input type="password" id="admin-pass" placeholder="Pass"><br><br>
+        <button class="btn" onclick="checkAdmin()">LOGIN</button>
     </div>
 </div>
-
-<div id="lightbox">
-    <button style="position:absolute; top:20px; right:20px; background:#333; color:white; padding:10px; border:none; cursor:pointer;" onclick="closeLightbox()">✕ CLOSE</button>
-    <button class="nav-arrow arrow-left" onclick="changeImage(-1)">‹</button>
-    <img id="lightbox-img">
-    <button class="nav-arrow arrow-right" onclick="changeImage(1)">›</button>
-</div>
-
-<header>
-    <h1>Freeper / Freepy</h1>
-    <p class="subtitle">Freepy's Portfolio, powered by Render.</p>
-</header>
 
 <div id="admin-dashboard">
-    <h2 style="font-family:'MinecraftBold'">Welcome, Freeperr</h2>
-    <p>Admin Mode Active.</p>
-    <button onclick="logoutAdmin()" style="background:red; color:white; border:none; padding:10px; font-family:'Minecraft'; cursor:pointer;">Logout</button>
-</div>
-
-<div class="container">
-    <button class="back-btn" id="back-btn" onclick="showCategories()">← BACK TO CATEGORIES</button>
-    <div id="category-view" class="grid"></div>
-    <div id="gallery-view" style="display:none;">
-        <h2 id="gallery-title" style="margin-bottom:40px; font-family:'MinecraftBold';"></h2>
-        <div id="gallery-images" class="grid"></div>
+    <h2>DASHBOARD</h2>
+    <div class="admin-tool">
+        <h3>Neues Projekt</h3>
+        <input type="text" id="new-proj-name" placeholder="Projekt Name">
+        <button class="btn" onclick="createProject()">ORDNER ERSTELLEN</button>
     </div>
+    <div id="active-edit-zone" style="display:none;" class="admin-tool">
+        <h3 id="edit-folder-name">Editiere: -</h3>
+        <div class="drop-zone" id="drop-start">Startbild hierher ziehen</div>
+        <div class="drop-zone" id="drop-gallery">Galeriebilder hierher ziehen</div>
+        <button class="btn" onclick="finishEdit()">FERTIG</button>
+    </div>
+    <button class="btn btn-red" onclick="location.reload()">LOGOUT</button>
 </div>
 
-<footer>2026 Freeper / Freepy</footer>
-<div class="discord-info">Discord username: Freeperr</div>
+<header style="padding:50px;">
+    <h1>Freeper Portfolio</h1>
+    <p>Drücke "A" "D" "M" "I" "N" zum Einloggen</p>
+</header>
+
+<div class="grid" id="main-grid"></div>
 
 <script>
-let projectsData = [];
-let currentProjectImages = [];
-let currentImageIndex = 0;
-let keys = [];
-const adminCode = "ADMIN";
+let projects = [];
+let currentEditFolder = "";
+let keyLog = "";
 
-// --- Tastatur Steuerung ---
+// Admin Trigger
 document.addEventListener('keydown', (e) => {
-    // Admin Login Trigger
-    keys.push(e.key.toUpperCase());
-    keys = keys.slice(-adminCode.length);
-    if (keys.join('') === adminCode) {
+    keyLog += e.key.toUpperCase();
+    if (keyLog.includes("ADMIN")) {
         document.getElementById('admin-login-overlay').style.display = 'flex';
-        keys = [];
-    }
-    // Galerie Steuerung
-    if (document.getElementById('lightbox').style.display === 'flex') {
-        if (e.key === "ArrowRight") changeImage(1);
-        if (e.key === "ArrowLeft") changeImage(-1);
-        if (e.key === "Escape") closeLightbox();
+        keyLog = "";
     }
 });
 
-function closeAdmin() { document.getElementById('admin-login-overlay').style.display = 'none'; }
-
-// --- Sicherer Login via API ---
 async function checkAdmin() {
     const user = document.getElementById('admin-user').value;
     const pass = document.getElementById('admin-pass').value;
-
-    try {
-        const response = await fetch('/api/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ user, pass })
-        });
-        const result = await response.json();
-        if (result.success) {
-            document.getElementById('admin-login-overlay').style.display = 'none';
-            document.getElementById('admin-dashboard').style.display = 'block';
-        } else {
-            alert("Falsche Daten!");
-        }
-    } catch (e) { alert("Server Fehler!"); }
+    const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({user, pass})
+    });
+    if (res.ok) {
+        document.getElementById('admin-login-overlay').style.display = 'none';
+        document.getElementById('admin-dashboard').style.display = 'block';
+        loadProjects();
+    } else alert("Falsch!");
 }
 
-function logoutAdmin() { location.reload(); }
-
-// --- Portfolio Logik ---
 async function loadProjects() {
-    try {
-        // Lädt die Projekte jetzt dynamisch vom Server-Scan
-        const response = await fetch('/api/projects');
-        projectsData = await response.json();
-        renderCategories();
-    } catch (e) { console.error("Fehler beim Laden der Projekte", e); }
-}
-
-function renderCategories() {
-    const container = document.getElementById('category-view');
-    container.innerHTML = '';
-    projectsData.forEach((project, index) => {
-        const card = document.createElement('div');
-        card.className = 'card-base';
-        card.onclick = () => showGallery(index);
-        const img = new Image();
-        img.src = project.cover || 'placeholder.png';
-        img.onload = () => img.classList.add('loaded');
-        const title = document.createElement('div');
-        title.className = 'card-title';
-        title.textContent = project.name;
-        card.appendChild(img);
-        card.appendChild(title);
-        container.appendChild(card);
+    const res = await fetch('/api/projects');
+    projects = await res.json();
+    const grid = document.getElementById('main-grid');
+    grid.innerHTML = '';
+    projects.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `
+            <img src="${p.cover || 'placeholder.png'}">
+            <p>${p.name}</p>
+            ${document.getElementById('admin-dashboard').style.display === 'block' ? 
+                `<button class="btn" onclick="startEdit('${p.folder}')">EDIT</button> 
+                 <button class="btn btn-red" onclick="deleteProject('${p.folder}')">X</button>` : ''}
+        `;
+        grid.appendChild(div);
     });
-    const placeholder = document.createElement('div');
-    placeholder.className = 'card-base placeholder-card';
-    placeholder.innerHTML = `<div style="text-align:center; color:#888;"><span style="font-size:3rem;">?</span><br>More coming soon.</div>`;
-    container.appendChild(placeholder);
 }
 
-function showGallery(index) {
-    const project = projectsData[index];
-    currentProjectImages = project.images;
-    document.getElementById('category-view').style.display = 'none';
-    document.getElementById('gallery-view').style.display = 'block';
-    document.getElementById('back-btn').style.display = 'block';
-    document.getElementById('gallery-title').innerText = project.name;
-    const imgContainer = document.getElementById('gallery-images');
-    imgContainer.innerHTML = '';
-    project.images.forEach((imgUrl, imgIdx) => {
-        const item = document.createElement('div');
-        item.className = 'card-base';
-        const img = new Image();
-        img.src = imgUrl;
-        img.onload = () => img.classList.add('loaded');
-        img.onclick = () => openLightbox(imgIdx);
-        item.appendChild(img);
-        imgContainer.appendChild(item);
+async function createProject() {
+    const name = document.getElementById('new-proj-name').value;
+    const res = await fetch('/api/projects/create', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({name})
     });
-    window.scrollTo(0, 0);
+    const data = await res.json();
+    if (res.ok) startEdit(data.folder);
 }
 
-function openLightbox(index) {
-    currentImageIndex = index;
-    document.getElementById('lightbox-img').src = currentProjectImages[currentImageIndex];
-    document.getElementById('lightbox').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
+function startEdit(folder) {
+    currentEditFolder = folder;
+    document.getElementById('active-edit-zone').style.display = 'block';
+    document.getElementById('edit-folder-name').innerText = "Editiere: " + folder;
+    window.scrollTo(0,0);
 }
 
-function closeLightbox() {
-    document.getElementById('lightbox').style.display = 'none';
-    document.body.style.overflow = 'auto';
-}
-
-function changeImage(step) {
-    if (currentProjectImages.length === 0) return;
-    currentImageIndex = (currentImageIndex + step + currentProjectImages.length) % currentProjectImages.length;
-    document.getElementById('lightbox-img').src = currentProjectImages[currentImageIndex];
-}
-
-function showCategories() {
-    document.getElementById('category-view').style.display = 'grid';
-    document.getElementById('gallery-view').style.display = 'none';
-    document.getElementById('back-btn').style.display = 'none';
-}
-
-function initBubbles() {
-    const container = document.getElementById('bubble-container');
-    for (let i = 0; i < 15; i++) {
-        const b = document.createElement('div');
-        b.className = 'bubble';
-        const size = Math.random() * 40 + 10 + 'px';
-        b.style.width = size; b.style.height = size;
-        b.style.left = Math.random() * 100 + '%';
-        b.style.animationDuration = Math.random() * 5 + 7 + 's';
-        container.appendChild(b);
+async function deleteProject(folder) {
+    if (confirm("Löschen?")) {
+        await fetch(`/api/projects/${folder}`, { method: 'DELETE' });
+        loadProjects();
     }
 }
 
+// Drag & Drop Handling
+function setupDropZone(id, type) {
+    const zone = document.getElementById(id);
+    zone.ondragover = (e) => { e.preventDefault(); zone.classList.add('hover'); };
+    zone.ondragleave = () => zone.classList.remove('hover');
+    zone.ondrop = async (e) => {
+        e.preventDefault();
+        zone.classList.remove('hover');
+        const files = e.dataTransfer.files;
+        for (let i = 0; i < files.length; i++) {
+            const formData = new FormData();
+            formData.append('image', files[i]);
+            formData.append('folder', currentEditFolder);
+            formData.append('type', type);
+            formData.append('index', i);
+            await fetch('/api/upload', { method: 'POST', body: formData });
+        }
+        alert("Hochgeladen!");
+        loadProjects();
+    };
+}
+
+setupDropZone('drop-start', 'start');
+setupDropZone('drop-gallery', 'gallery');
+
+function finishEdit() {
+    document.getElementById('active-edit-zone').style.display = 'none';
+    currentEditFolder = "";
+    loadProjects();
+}
+
 loadProjects();
-initBubbles();
 </script>
 </body>
 </html>
