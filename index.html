@@ -79,7 +79,14 @@
         .subtitle { color: #aaa; margin-top: 15px; font-size: 1.1rem; }
 
         .container { max-width: 1200px; margin: 0 auto; padding: 20px; min-height: 600px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; }
+        
+        /* FIX: Grid-Layout vereinheitlicht */
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+            gap: 25px;
+            grid-auto-rows: 1fr; /* Sorgt dafür, dass alle Zeilen gleich hoch sind */
+        }
 
         .card-base {
             background: white;
@@ -90,7 +97,8 @@
             background-color: #f9f9f9;
             display: flex;
             flex-direction: column;
-            height: 100%; /* Stellt sicher, dass Karten innerhalb des Grids wachsen */
+            height: 100%;
+            box-sizing: border-box;
         }
 
         .card-base:hover {
@@ -104,7 +112,7 @@
             opacity: 0;
             transition: opacity 0.8s ease;
             object-fit: cover;
-            height: 250px;
+            height: 250px; /* Feste Höhe für die Bilder */
         }
 
         .card-base img.loaded { opacity: 1; }
@@ -114,18 +122,24 @@
             font-family: 'MinecraftBold', sans-serif;
             background: white;
             font-size: 0.9rem;
-            margin-top: auto; /* Klebt den Titel an den Boden der Karte */
+            flex-grow: 1; /* Nimmt den restlichen Platz ein */
+            display: flex;
+            align-items: center;
+            justify-content: center;
             border-top: 4px solid #f2f2f2;
         }
 
+        /* FIX: Placeholder-Card angepasst */
         .placeholder-card {
             border: 4px dashed #ddd !important;
             cursor: default !important;
             background: #fafafa;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 310px; /* Passt sich der Höhe der Bild-Karten an */
+            height: 100%;
+            min-height: 310px; /* Gleicht sich der Standard-Kartenhöhe an */
         }
 
         .back-btn {
@@ -211,7 +225,6 @@ let currentImageIndex = 0;
 let keys = [];
 const adminCode = "ADMIN";
 
-// --- Admin Logik ---
 document.addEventListener('keydown', (e) => {
     keys.push(e.key.toUpperCase());
     keys = keys.slice(-adminCode.length);
@@ -226,7 +239,6 @@ function closeAdmin() { document.getElementById('admin-login-overlay').style.dis
 function checkAdmin() {
     const user = document.getElementById('admin-user').value;
     const pass = document.getElementById('admin-pass').value;
-    // Ändere 'dein-passwort' hier zu deinem Wunsch-Passwort
     if (user === "Admin Freeperr" && pass === "dein-passwort") {
         document.getElementById('admin-login-overlay').style.display = 'none';
         document.getElementById('admin-dashboard').style.display = 'block';
@@ -237,7 +249,6 @@ function checkAdmin() {
 
 function logoutAdmin() { location.reload(); }
 
-// --- Portfolio Logik ---
 async function loadProjects() {
     try {
         const response = await fetch('projects.json');
