@@ -1,161 +1,207 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Freeper / Freepy | Portfolio</title>
+    <title>Freepy's Building Portfolio</title>
     <style>
         @font-face { font-family: 'Minecraft'; src: url('MinecraftRegular-Bmg3.otf'); }
         @font-face { font-family: 'MinecraftBold'; src: url('MinecraftBold-nMK1.otf'); font-weight: bold; }
-
-        * { font-family: 'Minecraft', sans-serif !important; }
-        h1, h2, h3, .card-title { font-family: 'MinecraftBold', sans-serif !important; }
-
-        body { margin: 0; background: #fff; text-align: center; color: #333; }
-        header { padding: 60px 20px; }
-        h1 { font-size: 3.5rem; margin: 0; }
         
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; padding: 20px; max-width: 1200px; margin: 0 auto; }
-        
-        .card { background: white; border: 4px solid #f2f2f2; cursor: pointer; transition: 0.2s; position: relative; }
-        .card:hover { border-color: #333; transform: translateY(-5px); }
-        .card img { width: 100%; height: 240px; object-fit: cover; display: block; }
-        .card-title { padding: 15px; border-top: 4px solid #f2f2f2; background: #fff; }
+        * { font-family: 'Minecraft', sans-serif !important; box-sizing: border-box; }
+        h1, h2, h3, h4, .card-title, .btn { font-family: 'MinecraftBold', sans-serif !important; }
 
+        body { margin: 0; background: #fff; text-align: center; color: #333; line-height: 1.6; }
+        
         /* Admin Dashboard */
-        #admin-dash { display: none; background: #f0f4ff; border-bottom: 5px solid #5865F2; padding: 20px; }
-        .edit-controls { background: #fff; border: 3px solid #333; margin: 10px auto; padding: 15px; max-width: 800px; }
-        .order-img { width: 80px; height: 60px; object-fit: cover; margin: 5px; border: 2px solid #eee; }
+        #admin-panel { display: none; background: #f0f4ff; border-bottom: 5px solid #5865F2; padding: 25px; position: sticky; top: 0; z-index: 100; }
+        .admin-box { background: white; border: 3px solid #333; padding: 20px; max-width: 700px; margin: 0 auto 10px; text-align: left; }
+        .drop-zone { border: 2px dashed #5865F2; padding: 20px; margin-top: 10px; background: #f9faff; cursor: pointer; text-align: center; }
         
-        /* Lightbox */
-        #lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); z-index: 1000; justify-content: center; align-items: center; }
-        #lightbox img { max-width: 90%; max-height: 80%; border: 4px solid #333; }
+        /* Layout */
+        header { padding: 80px 20px 40px; }
+        h1 { font-size: 3.5rem; margin: 0; }
+        .subtitle { color: #aaa; font-size: 1.2rem; margin-top: 10px; }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; padding: 20px; max-width: 1240px; margin: 0 auto; }
+        .card { border: 4px solid #f2f2f2; background: #fff; cursor: pointer; transition: 0.2s; position: relative; }
+        .card:hover { border-color: #333; transform: translateY(-5px); }
+        .card img { width: 100%; height: 240px; object-fit: cover; display: block; border-bottom: 4px solid #f2f2f2; }
+        .card-title { padding: 15px; font-size: 1rem; text-transform: uppercase; }
 
-        .btn { padding: 10px 20px; background: #333; color: #fff; border: 4px solid #000; cursor: pointer; margin: 5px; }
-        #back-btn { display: none; margin: 20px auto; }
+        /* Login Overlay */
+        #login-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center; }
+        .login-box { background: #fff; padding: 40px; border: 4px solid #333; }
+        
+        input { padding: 10px; border: 2px solid #eee; margin: 5px; font-family: 'Minecraft' !important; }
+        .btn { padding: 10px 20px; background: #333; color: #fff; border: 4px solid #000; cursor: pointer; margin: 5px; text-transform: uppercase; }
+        .btn:hover { background: #555; }
+        .btn-red { background: #ff4747; }
+
+        footer { margin: 100px 0 50px; color: #bbb; font-size: 1rem; }
     </style>
 </head>
 <body>
 
-<div id="admin-dash">
-    <h2>ADMIN PANEL</h2>
-    <div class="edit-controls" id="edit-list">
-        </div>
-    <button class="btn" onclick="saveData()">ÄNDERUNGEN SPEICHERN</button>
-</div>
-
-<header>
-    <h1 onclick="keys='ADMIN'; checkKey()">Freeper / Freepy</h1>
-    <p style="color:#aaa">Minecraft Builds Portfolio</p>
-</header>
-
-<div class="container">
-    <button id="back-btn" class="btn" onclick="showCats()">← ZURÜCK</button>
-    <div id="cat-view" class="grid"></div>
-    <div id="gal-view" style="display:none;">
-        <h2 id="gal-title"></h2>
-        <div id="gal-grid" class="grid"></div>
+<div id="login-overlay">
+    <div class="login-box">
+        <h2>ADMIN ACCESS</h2>
+        <input type="text" id="user" placeholder="Username"><br>
+        <input type="password" id="pass" placeholder="Password"><br><br>
+        <button class="btn" onclick="login()">LOGIN</button>
+        <button class="btn" style="background:#888" onclick="document.getElementById('login-overlay').style.display='none'">CLOSE</button>
     </div>
 </div>
 
-<div id="lightbox" onclick="this.style.display='none'">
-    <img id="lb-img">
+<div id="admin-panel">
+    <h2>ADMIN DASHBOARD</h2>
+    <div class="admin-box">
+        <h4>Create New Project</h4>
+        <input type="text" id="new-p-name" placeholder="Project Title">
+        <button class="btn" onclick="addProject()">CREATE</button>
+    </div>
+    <div id="admin-list"></div>
+    <button class="btn btn-red" onclick="location.reload()">LOGOUT</button>
 </div>
+
+<header>
+    <h1>Freepy's building portfolio</h1>
+    <p class="subtitle">inspired by SmokePVP</p>
+</header>
+
+<div id="main-content">
+    <button id="back-btn" class="btn" style="display:none; margin-bottom:40px;" onclick="showCats()">← BACK TO CATEGORIES</button>
+    <div id="view" class="grid"></div>
+</div>
+
+<footer>
+    Made by Freepy
+</footer>
 
 <script>
 let projects = [];
-let currentImages = [];
-let isAdmin = false;
+let loggedIn = false;
 
 async function load() {
     const res = await fetch('/api/projects');
     projects = await res.json();
-    renderCats();
+    render();
 }
 
-function renderCats() {
-    const view = document.getElementById('cat-view');
+function render() {
+    const view = document.getElementById('view');
     view.innerHTML = '';
     projects.forEach((p, i) => {
         const card = document.createElement('div');
         card.className = 'card';
         card.innerHTML = `
-            <img src="${p.cover}" onclick="showGal(${i})">
-            <div class="card-title">${p.name}</div>
+            <img src="${p.cover || 'placeholder.jpg'}" onclick="showGal(${i})">
+            <div class="card-title" onclick="showGal(${i})">${p.name}</div>
         `;
         view.appendChild(card);
     });
-    if(isAdmin) renderAdminTools();
+    if(loggedIn) renderAdmin();
 }
 
-function renderAdminTools() {
-    const list = document.getElementById('edit-list');
-    list.innerHTML = '<h3>Reihenfolge der Projekte:</h3>';
+function renderAdmin() {
+    const list = document.getElementById('admin-list');
+    list.innerHTML = '';
     projects.forEach((p, i) => {
-        list.innerHTML += `
-            <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #eee; padding:5px;">
-                <span>${p.name}</span>
+        const item = document.createElement('div');
+        item.className = 'admin-box';
+        item.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <strong>${p.name}</strong> 
                 <div>
-                    <button onclick="move(${i}, -1)">↑</button>
-                    <button onclick="move(${i}, 1)">↓</button>
+                    <button class="btn" style="padding:5px 10px" onclick="move(${i}, -1)">↑</button> 
+                    <button class="btn" style="padding:5px 10px" onclick="move(${i}, 1)">↓</button>
                 </div>
             </div>
+            <div class="drop-zone" ondrop="handleDrop(event, '${p.folder}')" ondragover="event.preventDefault()">
+                DRAG & DROP IMAGES HERE (MUST START WITH 'IMAGE')
+            </div>
         `;
+        list.appendChild(item);
     });
 }
 
-function move(idx, dir) {
-    let target = idx + dir;
-    if(target < 0 || target >= projects.length) return;
-    [projects[idx], projects[target]] = [projects[target], projects[idx]];
-    renderCats();
+async function addProject() {
+    const name = document.getElementById('new-p-name').value;
+    if(!name) return;
+    await fetch('/api/projects/create', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({name})
+    });
+    document.getElementById('new-p-name').value = '';
+    load();
 }
 
-async function saveData() {
+async function move(idx, dir) {
+    let t = idx + dir;
+    if(t < 0 || t >= projects.length) return;
+    [projects[idx], projects[t]] = [projects[t], projects[idx]];
     await fetch('/api/projects/save', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(projects)
     });
-    alert("Gespeichert!");
+    load();
+}
+
+async function handleDrop(e, folder) {
+    e.preventDefault();
+    const files = e.dataTransfer.files;
+    for(let f of files) {
+        const fd = new FormData();
+        fd.append('file', f);
+        fd.append('folder', folder);
+        await fetch('/api/upload', { method: 'POST', body: fd });
+    }
+    alert("Upload finished!");
+    load();
 }
 
 function showGal(i) {
     const p = projects[i];
-    currentImages = p.images;
-    document.getElementById('cat-view').style.display = 'none';
-    document.getElementById('gal-view').style.display = 'block';
-    document.getElementById('back-btn').style.display = 'block';
-    document.getElementById('gal-title').innerText = p.name;
-    const grid = document.getElementById('gal-grid');
-    grid.innerHTML = '';
+    document.getElementById('back-btn').style.display = 'inline-block';
+    const view = document.getElementById('view');
+    view.innerHTML = '';
+    if(p.images.length === 0) {
+        view.innerHTML = '<p style="grid-column: 1/-1;">No images found. Please name them "image1.png", etc.</p>';
+    }
     p.images.forEach(img => {
-        grid.innerHTML += `<div class="card"><img src="${img}" onclick="openLb('${img}')"></div>`;
+        view.innerHTML += `<div class="card"><img src="${img}"></div>`;
     });
+    window.scrollTo(0,0);
 }
 
 function showCats() {
-    document.getElementById('cat-view').style.display = 'grid';
-    document.getElementById('gal-view').style.display = 'none';
     document.getElementById('back-btn').style.display = 'none';
+    render();
 }
 
-function openLb(src) {
-    document.getElementById('lb-img').src = src;
-    document.getElementById('lightbox').style.display = 'flex';
-}
-
-// Secret Login: Tippe "ADMIN" auf der Tastatur
+// Secret Admin Access
 let keys = "";
 document.addEventListener('keydown', e => {
     keys += e.key.toUpperCase();
-    if(keys.includes("ADMIN")) {
-        isAdmin = true;
-        document.getElementById('admin-dash').style.display = 'block';
-        renderAdminTools();
-        keys = "";
-    }
+    if(keys.includes("ADMIN")) { document.getElementById('login-overlay').style.display='flex'; keys=""; }
 });
+
+async function login() {
+    const user = document.getElementById('user').value;
+    const pass = document.getElementById('pass').value;
+    const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({user, pass})
+    });
+    if(res.ok) {
+        loggedIn = true;
+        document.getElementById('login-overlay').style.display='none';
+        document.getElementById('admin-panel').style.display='block';
+        render();
+    } else alert("Invalid Login");
+}
 
 load();
 </script>
