@@ -4,7 +4,7 @@
   "description": "Minecraft Portfolio",
   "main": "Server.js",
   "scripts": {
-    "start": "node Server.js"
+    "start": "node server.js"
   },
   "dependencies": {
     "express": "^4.18.2"
