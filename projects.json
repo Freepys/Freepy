@@ -47,5 +47,19 @@
       "img/Trees/image17.png",
       "img/Trees/image18.png"
     ]
+  },
+  {
+    "name": "Snowy - Landscape",
+    "cover": "img/Snowy/Start/Snowy.png",
+    "images": [
+      "img/Snowy/image1.png",
+      "img/Snowy/image2.png",
+      "img/Snowy/image3.png",
+      "img/Snowy/image4.png",
+      "img/Snowy/image5.png",
+      "img/Snowy/image6.png",
+      "img/Snowy/image7.png",
+      "img/Snowy/image8.png"
+    ]
   }
 ]
