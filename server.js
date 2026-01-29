@@ -2,19 +2,25 @@ const express = require('express');
 const fs = require('fs-extra');
 const path = require('path');
 const multer = require('multer');
+const simpleGit = require('simple-git');
 const app = express();
 
 const PORT = process.env.PORT || 3000;
 const PROJECTS_FILE = path.join(__dirname, 'projects.json');
 
+// Use the GitHub Token for authentication
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+// Get repo URL from environment or detect it
+const remote = `https://x-access-token:${GITHUB_TOKEN}@github.com/YourUsername/YourRepoName.git`;
+
+const git = simpleGit();
+
 app.use(express.json());
 app.use(express.static('./'));
 
-// Admin Credentials (Set these in Render Environment Variables)
-const ADMIN_USER = process.env.ADMIN_USER || "Admin Freeperr";
+const ADMIN_USER = "Admin Freeperr";
 const ADMIN_PASS = process.env.ADMIN_PASS || "your-password";
 
-// Multer Setup for Drag & Drop Uploads
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         const dest = path.join(__dirname, 'img', req.body.folder);
@@ -25,71 +31,72 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// API: Login
+async function syncToGitHub(message) {
+    if (!GITHUB_TOKEN) {
+        console.log("No GitHub token found. Skipping sync.");
+        return;
+    }
+    try {
+        // Configure git user so the commit has a name
+        await git.addConfig('user.email', 'portfolio-bot@render.com');
+        await git.addConfig('user.name', 'Portfolio Sync Bot');
+        
+        await git.add('./*');
+        await git.commit(message);
+        await git.push(remote, 'main'); // Ensure your branch is 'main'
+        console.log("Successfully pushed to GitHub: " + message);
+    } catch (err) {
+        console.error("Git Sync Error:", err);
+    }
+}
+
 app.post('/api/login', (req, res) => {
     const { user, pass } = req.body;
     if (user === ADMIN_USER && pass === ADMIN_PASS) res.json({ success: true });
     else res.status(401).json({ success: false });
 });
 
-// API: Load Projects & Auto-Scan Images
 app.get('/api/projects', (req, res) => {
     if (!fs.existsSync(PROJECTS_FILE)) return res.json([]);
     let config = fs.readJsonSync(PROJECTS_FILE);
-
     const fullData = config.map(proj => {
         const dir = path.join(__dirname, 'img', proj.folder);
         if (!fs.existsSync(dir)) return null;
-
         const allFiles = fs.readdirSync(dir);
         
-        // Auto-scan for files starting with "image"
-        const images = allFiles
+        const diskImages = allFiles
             .filter(f => f.toLowerCase().startsWith('image') && /\.(png|jpg|jpeg)$/i.test(f))
-            .sort((a, b) => {
-                const numA = parseInt(a.replace(/\D/g, '')) || 0;
-                const numB = parseInt(b.replace(/\D/g, '')) || 0;
-                return numA - numB;
-            })
             .map(f => `img/${proj.folder}/${f}`);
+        
+        const sortedImages = proj.images && proj.images.length > 0 
+            ? proj.images.filter(img => diskImages.includes(img)) 
+            : diskImages;
 
-        // Auto-find Cover in "start" folder (case insensitive)
-        let cover = proj.cover || "";
-        const startFolderName = allFiles.find(f => f.toLowerCase() === 'start');
-        if (startFolderName) {
-            const startPath = path.join(dir, startFolderName);
-            const startFiles = fs.readdirSync(startPath).filter(f => /\.(png|jpg|jpeg)$/i.test(f));
-            if (startFiles.length > 0) cover = `img/${proj.folder}/${startFolderName}/${startFiles[0]}`;
+        diskImages.forEach(img => { if(!sortedImages.includes(img)) sortedImages.push(img); });
+
+        let cover = "";
+        const startDir = allFiles.find(f => f.toLowerCase() === 'start');
+        if (startDir) {
+            const sPath = path.join(dir, startFolderName);
+            if(fs.existsSync(sPath)) {
+                const sFiles = fs.readdirSync(sPath).filter(f => /\.(png|jpg|jpeg)$/i.test(f));
+                if (sFiles.length > 0) cover = `img/${proj.folder}/${startFolderName}/${sFiles[0]}`;
+            }
         }
-
-        return { ...proj, cover, images };
+        return { ...proj, cover, images: sortedImages };
     }).filter(p => p);
-
     res.json(fullData);
 });
 
-// API: Create New Project
-app.post('/api/projects/create', (req, res) => {
-    const { name } = req.body;
-    const folder = name.toLowerCase().replace(/\s+/g, '_');
-    if (!fs.existsSync(PROJECTS_FILE)) fs.writeJsonSync(PROJECTS_FILE, []);
-    const config = fs.readJsonSync(PROJECTS_FILE);
-    
-    if (config.find(p => p.folder === folder)) return res.status(400).send("Folder already exists");
-    
-    config.push({ name, folder, cover: "" });
-    fs.writeJsonSync(PROJECTS_FILE, config, { spaces: 2 });
-    fs.ensureDirSync(path.join(__dirname, 'img', folder, 'start'));
-    res.json({ success: true });
-});
-
-// API: Save Project Order
-app.post('/api/projects/save', (req, res) => {
+app.post('/api/projects/save', async (req, res) => {
     fs.writeJsonSync(PROJECTS_FILE, req.body, { spaces: 2 });
     res.json({ success: true });
+    await syncToGitHub("Update projects.json order");
 });
 
-// API: Upload Image
-app.post('/api/upload', upload.single('file'), (req, res) => res.json({ success: true }));
+app.post('/api/upload', upload.single('file'), async (req, res) => {
+    res.json({ success: true });
+    await syncToGitHub(`Upload image to ${req.body.folder}`);
+});
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

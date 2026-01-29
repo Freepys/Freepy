@@ -2,208 +2,336 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Freepy's Building Portfolio</title>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <style>
         @font-face { font-family: 'Minecraft'; src: url('MinecraftRegular-Bmg3.otf'); }
         @font-face { font-family: 'MinecraftBold'; src: url('MinecraftBold-nMK1.otf'); font-weight: bold; }
         
-        * { font-family: 'Minecraft', sans-serif !important; box-sizing: border-box; }
-        h1, h2, h3, h4, .card-title, .btn { font-family: 'MinecraftBold', sans-serif !important; }
+        * { 
+            font-family: 'Minecraft', sans-serif !important; 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        h1, h2, h3, .card-title, .btn { 
+            font-family: 'MinecraftBold', sans-serif !important; 
+        }
 
-        body { margin: 0; background: #fff; text-align: center; color: #333; line-height: 1.6; }
-        
-        /* Admin Dashboard */
-        #admin-panel { display: none; background: #f0f4ff; border-bottom: 5px solid #5865F2; padding: 25px; position: sticky; top: 0; z-index: 100; }
-        .admin-box { background: white; border: 3px solid #333; padding: 20px; max-width: 700px; margin: 0 auto 10px; text-align: left; }
-        .drop-zone { border: 2px dashed #5865F2; padding: 20px; margin-top: 10px; background: #f9faff; cursor: pointer; text-align: center; }
-        
-        /* Layout */
+        body { 
+            margin: 0; 
+            background: #fff; 
+            text-align: center; 
+            color: #333; 
+            overflow-x: hidden;
+        }
+
+        /* Clean Loading Animation */
+        .fade-in { 
+            animation: fadeIn 0.4s ease-out forwards; 
+            opacity: 0; 
+        }
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        /* Admin Bar */
+        #admin-bar { 
+            display: none; 
+            background: #5865F2; 
+            color: white; 
+            padding: 15px; 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
         header { padding: 80px 20px 40px; }
-        h1 { font-size: 3.5rem; margin: 0; }
-        .subtitle { color: #aaa; font-size: 1.2rem; margin-top: 10px; }
-        
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; padding: 20px; max-width: 1240px; margin: 0 auto; }
-        .card { border: 4px solid #f2f2f2; background: #fff; cursor: pointer; transition: 0.2s; position: relative; }
-        .card:hover { border-color: #333; transform: translateY(-5px); }
-        .card img { width: 100%; height: 240px; object-fit: cover; display: block; border-bottom: 4px solid #f2f2f2; }
-        .card-title { padding: 15px; font-size: 1rem; text-transform: uppercase; }
+        h1 { font-size: 3.2rem; margin: 0; letter-spacing: -1px; }
+        .subtitle { color: #aaa; font-size: 1.1rem; margin-top: 10px; }
 
-        /* Login Overlay */
-        #login-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center; }
-        .login-box { background: #fff; padding: 40px; border: 4px solid #333; }
-        
-        input { padding: 10px; border: 2px solid #eee; margin: 5px; font-family: 'Minecraft' !important; }
-        .btn { padding: 10px 20px; background: #333; color: #fff; border: 4px solid #000; cursor: pointer; margin: 5px; text-transform: uppercase; }
+        .container { 
+            max-width: 1300px; 
+            margin: 0 auto; 
+            padding: 20px; 
+        }
+
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+            gap: 30px; 
+        }
+
+        /* Projekt & Bild Karten */
+        .card { 
+            border: 4px solid #f2f2f2; 
+            background: #fff; 
+            cursor: pointer; 
+            position: relative; 
+            transition: transform 0.2s, border-color 0.2s;
+            overflow: hidden;
+        }
+        .card:hover { 
+            border-color: #333; 
+            transform: translateY(-5px); 
+        }
+        .card img { 
+            width: 100%; 
+            height: 240px; 
+            object-fit: cover; 
+            display: block; 
+            pointer-events: none; /* Verhindert Probleme beim Draggen */
+        }
+        .card-title { 
+            padding: 15px; 
+            font-size: 0.9rem; 
+            border-top: 4px solid #f2f2f2;
+            text-transform: uppercase;
+        }
+
+        /* Admin Mode Styling */
+        .admin-active .card { 
+            cursor: grab; 
+            border: 4px solid #5865F2; 
+        }
+        .admin-active .card:active { 
+            cursor: grabbing; 
+        }
+        .sortable-ghost { 
+            opacity: 0.2; 
+            transform: scale(0.9); 
+        }
+
+        /* Buttons */
+        .btn { 
+            padding: 10px 20px; 
+            background: #333; 
+            color: #fff; 
+            border: 4px solid #000; 
+            cursor: pointer; 
+            margin: 5px; 
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
         .btn:hover { background: #555; }
-        .btn-red { background: #ff4747; }
+        .btn-save { background: #fff; color: #5865F2; border-color: #fff; }
 
-        footer { margin: 100px 0 50px; color: #bbb; font-size: 1rem; }
+        /* Drag & Drop Overlay */
+        #drop-overlay { 
+            display: none; 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            background: rgba(88, 101, 242, 0.9); 
+            z-index: 5000; 
+            border: 10px dashed #fff; 
+            align-items: center; 
+            justify-content: center; 
+            color: #fff; 
+            font-size: 2rem; 
+            pointer-events: none;
+        }
+
+        footer { 
+            margin: 100px 0 50px; 
+            color: #bbb; 
+            font-size: 0.9rem; 
+        }
+
+        #back-btn { display: none; margin-bottom: 40px; }
     </style>
 </head>
-<body>
+<body ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
 
-<div id="login-overlay">
-    <div class="login-box">
-        <h2>ADMIN ACCESS</h2>
-        <input type="text" id="user" placeholder="Username"><br>
-        <input type="password" id="pass" placeholder="Password"><br><br>
-        <button class="btn" onclick="login()">LOGIN</button>
-        <button class="btn" style="background:#888" onclick="document.getElementById('login-overlay').style.display='none'">CLOSE</button>
+    <div id="drop-overlay">DROP IMAGES TO UPLOAD TO THIS PROJECT</div>
+
+    <div id="admin-bar">
+        ADMIN MODE ACTIVE — Hold & Drag to reorder
+        <button class="btn btn-save" onclick="saveAll()">SAVE TO GITHUB</button>
+        <button class="btn" style="background:red; border-color:red;" onclick="location.reload()">LOGOUT</button>
     </div>
-</div>
 
-<div id="admin-panel">
-    <h2>ADMIN DASHBOARD</h2>
-    <div class="admin-box">
-        <h4>Create New Project</h4>
-        <input type="text" id="new-p-name" placeholder="Project Title">
-        <button class="btn" onclick="addProject()">CREATE</button>
+    <header id="main-header">
+        <h1>Freepy's building portfolio</h1>
+        <p class="subtitle">inspired by SmokePVP</p>
+    </header>
+
+    <div class="container">
+        <button id="back-btn" class="btn" onclick="showCats()">← BACK TO CATEGORIES</button>
+        <div id="view" class="grid"></div>
     </div>
-    <div id="admin-list"></div>
-    <button class="btn btn-red" onclick="location.reload()">LOGOUT</button>
-</div>
 
-<header>
-    <h1>Freepy's building portfolio</h1>
-    <p class="subtitle">inspired by SmokePVP</p>
-</header>
+    <footer>
+        Made by Freepy
+    </footer>
 
-<div id="main-content">
-    <button id="back-btn" class="btn" style="display:none; margin-bottom:40px;" onclick="showCats()">← BACK TO CATEGORIES</button>
-    <div id="view" class="grid"></div>
-</div>
+    <script>
+        let projects = [];
+        let currentProjIdx = null;
+        let loggedIn = false;
+        let sortableInstance = null;
 
-<footer>
-    Made by Freepy
-</footer>
+        // Projekte beim Start laden
+        async function load() {
+            try {
+                const res = await fetch('/api/projects');
+                projects = await res.json();
+                render();
+            } catch (err) {
+                console.error("Failed to load projects:", err);
+            }
+        }
 
-<script>
-let projects = [];
-let loggedIn = false;
+        function render() {
+            const view = document.getElementById('view');
+            view.innerHTML = '';
+            
+            if (currentProjIdx === null) {
+                // KATEGORIE ANSICHT
+                projects.forEach((p, i) => {
+                    const card = document.createElement('div');
+                    card.className = 'card fade-in';
+                    card.style.animationDelay = (i * 0.05) + 's';
+                    card.innerHTML = `
+                        <img src="${p.cover || 'placeholder.jpg'}">
+                        <div class="card-title">${p.name}</div>
+                    `;
+                    card.onclick = () => { if(!loggedIn) showGal(i); };
+                    view.appendChild(card);
+                });
+            } else {
+                // GALERIE ANSICHT
+                const p = projects[currentProjIdx];
+                p.images.forEach((img, i) => {
+                    const card = document.createElement('div');
+                    card.className = 'card fade-in';
+                    card.style.animationDelay = (i * 0.05) + 's';
+                    card.innerHTML = `<img src="${img}">`;
+                    view.appendChild(card);
+                });
+            }
+            
+            if(loggedIn) setupSorting();
+        }
 
-async function load() {
-    const res = await fetch('/api/projects');
-    projects = await res.json();
-    render();
-}
+        function setupSorting() {
+            if(sortableInstance) sortableInstance.destroy();
+            
+            const el = document.getElementById('view');
+            sortableInstance = new Sortable(el, {
+                animation: 250,
+                ghostClass: 'sortable-ghost',
+                delay: 200, // Langes Drücken für Drag
+                delayOnTouchOnly: true,
+                onEnd: (evt) => {
+                    if (currentProjIdx === null) {
+                        // Kategorien sortieren
+                        const item = projects.splice(evt.oldIndex, 1)[0];
+                        projects.splice(evt.newIndex, 0, item);
+                    } else {
+                        // Bilder innerhalb eines Projekts sortieren
+                        const imgs = projects[currentProjIdx].images;
+                        const item = imgs.splice(evt.oldIndex, 1)[0];
+                        imgs.splice(evt.newIndex, 0, item);
+                    }
+                }
+            });
+        }
 
-function render() {
-    const view = document.getElementById('view');
-    view.innerHTML = '';
-    projects.forEach((p, i) => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-            <img src="${p.cover || 'placeholder.jpg'}" onclick="showGal(${i})">
-            <div class="card-title" onclick="showGal(${i})">${p.name}</div>
-        `;
-        view.appendChild(card);
-    });
-    if(loggedIn) renderAdmin();
-}
+        function showGal(i) {
+            currentProjIdx = i;
+            document.getElementById('back-btn').style.display = 'inline-block';
+            document.getElementById('main-header').style.display = 'none';
+            render();
+            window.scrollTo(0,0);
+        }
 
-function renderAdmin() {
-    const list = document.getElementById('admin-list');
-    list.innerHTML = '';
-    projects.forEach((p, i) => {
-        const item = document.createElement('div');
-        item.className = 'admin-box';
-        item.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <strong>${p.name}</strong> 
-                <div>
-                    <button class="btn" style="padding:5px 10px" onclick="move(${i}, -1)">↑</button> 
-                    <button class="btn" style="padding:5px 10px" onclick="move(${i}, 1)">↓</button>
-                </div>
-            </div>
-            <div class="drop-zone" ondrop="handleDrop(event, '${p.folder}')" ondragover="event.preventDefault()">
-                DRAG & DROP IMAGES HERE (MUST START WITH 'IMAGE')
-            </div>
-        `;
-        list.appendChild(item);
-    });
-}
+        function showCats() {
+            currentProjIdx = null;
+            document.getElementById('back-btn').style.display = 'none';
+            document.getElementById('main-header').style.display = 'block';
+            render();
+            window.scrollTo(0,0);
+        }
 
-async function addProject() {
-    const name = document.getElementById('new-p-name').value;
-    if(!name) return;
-    await fetch('/api/projects/create', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({name})
-    });
-    document.getElementById('new-p-name').value = '';
-    load();
-}
+        async function saveAll() {
+            const btn = document.querySelector('.btn-save');
+            btn.innerText = "SAVING...";
+            
+            const res = await fetch('/api/projects/save', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(projects)
+            });
+            
+            if(res.ok) {
+                alert("Changes saved and synced to GitHub!");
+            } else {
+                alert("Error saving changes.");
+            }
+            btn.innerText = "SAVE TO GITHUB";
+        }
 
-async function move(idx, dir) {
-    let t = idx + dir;
-    if(t < 0 || t >= projects.length) return;
-    [projects[idx], projects[t]] = [projects[t], projects[idx]];
-    await fetch('/api/projects/save', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(projects)
-    });
-    load();
-}
+        // Drag & Drop Upload Logik
+        function handleDragOver(e) {
+            if(loggedIn && currentProjIdx !== null) {
+                e.preventDefault();
+                document.getElementById('drop-overlay').style.display = 'flex';
+            }
+        }
 
-async function handleDrop(e, folder) {
-    e.preventDefault();
-    const files = e.dataTransfer.files;
-    for(let f of files) {
-        const fd = new FormData();
-        fd.append('file', f);
-        fd.append('folder', folder);
-        await fetch('/api/upload', { method: 'POST', body: fd });
-    }
-    alert("Upload finished!");
-    load();
-}
+        function handleDragLeave(e) {
+            document.getElementById('drop-overlay').style.display = 'none';
+        }
 
-function showGal(i) {
-    const p = projects[i];
-    document.getElementById('back-btn').style.display = 'inline-block';
-    const view = document.getElementById('view');
-    view.innerHTML = '';
-    if(p.images.length === 0) {
-        view.innerHTML = '<p style="grid-column: 1/-1;">No images found. Please name them "image1.png", etc.</p>';
-    }
-    p.images.forEach(img => {
-        view.innerHTML += `<div class="card"><img src="${img}"></div>`;
-    });
-    window.scrollTo(0,0);
-}
+        async function handleDrop(e) {
+            if(!loggedIn || currentProjIdx === null) return;
+            e.preventDefault();
+            document.getElementById('drop-overlay').style.display = 'none';
+            
+            const files = e.dataTransfer.files;
+            if(files.length === 0) return;
 
-function showCats() {
-    document.getElementById('back-btn').style.display = 'none';
-    render();
-}
+            for(let f of files) {
+                const fd = new FormData();
+                fd.append('file', f);
+                fd.append('folder', projects[currentProjIdx].folder);
+                await fetch('/api/upload', { method: 'POST', body: fd });
+            }
+            
+            alert("Upload successful! Refreshing...");
+            load();
+        }
 
-// Secret Admin Access
-let keys = "";
-document.addEventListener('keydown', e => {
-    keys += e.key.toUpperCase();
-    if(keys.includes("ADMIN")) { document.getElementById('login-overlay').style.display='flex'; keys=""; }
-});
+        // Admin Secret Trigger: Tippe "ADMIN" auf der Tastatur
+        let keys = "";
+        document.addEventListener('keydown', async e => {
+            keys += e.key.toUpperCase();
+            if(keys.includes("ADMIN")) {
+                const pass = prompt("Enter Admin Password:");
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({user: "Admin Freeperr", pass})
+                });
 
-async function login() {
-    const user = document.getElementById('user').value;
-    const pass = document.getElementById('pass').value;
-    const res = await fetch('/api/login', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({user, pass})
-    });
-    if(res.ok) {
-        loggedIn = true;
-        document.getElementById('login-overlay').style.display='none';
-        document.getElementById('admin-panel').style.display='block';
-        render();
-    } else alert("Invalid Login");
-}
+                if(res.ok) {
+                    loggedIn = true;
+                    document.body.classList.add('admin-active');
+                    document.getElementById('admin-bar').style.display = 'block';
+                    render();
+                } else {
+                    alert("Wrong password.");
+                }
+                keys = "";
+            }
+        });
 
-load();
-</script>
+        // Initialer Load
+        load();
+    </script>
 </body>
 </html>
