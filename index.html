@@ -3,166 +3,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Freeper Portfolio | Admin</title>
+    <title>Freeper / Freepy | Portfolio</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <style>
         @font-face { font-family: 'Minecraft'; src: url('MinecraftRegular-Bmg3.otf'); }
-        body { font-family: 'Minecraft', sans-serif; background: #fff; text-align: center; margin: 0; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; padding: 20px; }
-        .card { border: 4px solid #eee; padding: 10px; cursor: pointer; transition: 0.2s; }
-        .card:hover { border-color: #333; }
-        .card img { width: 100%; height: 200px; object-fit: cover; }
+        @font-face { font-family: 'MinecraftBold'; src: url('MinecraftBold-nMK1.otf'); font-weight: bold; }
+
+        body { margin: 0; padding: 0; font-family: 'Minecraft', sans-serif; background-color: #ffffff; text-align: center; color: #333; }
         
-        /* Admin Dashboard */
-        #admin-dashboard { display: none; background: #f9f9f9; border-bottom: 4px solid #5865F2; padding: 30px; }
-        .admin-tool { background: white; border: 3px solid #333; padding: 15px; margin: 10px auto; max-width: 600px; }
-        .drop-zone { border: 2px dashed #ccc; padding: 20px; margin: 10px 0; cursor: pointer; }
-        .drop-zone.hover { background: #e1e4ff; border-color: #5865F2; }
+        /* Bubble Background */
+        .background-bubbles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+        .bubble { position: absolute; bottom: -100px; background: rgba(200, 200, 200, 0.1); border-radius: 50%; animation: rise 12s infinite ease-in; }
+        @keyframes rise { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: 0.3; } 100% { transform: translateY(-120vh); opacity: 0; } }
+
+        header { padding: 80px 20px 40px; }
+        h1 { font-family: 'MinecraftBold'; font-size: 3.5rem; margin: 0; }
+        .subtitle { color: #aaa; margin-top: 10px; font-size: 1rem; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
         
-        #admin-login-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center; }
-        .btn { background: #333; color: white; border: none; padding: 10px 20px; font-family: 'Minecraft'; cursor: pointer; }
-        .btn-red { background: #ff4747; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; }
+
+        /* Projekt Karten */
+        .card { background: white; border: 4px solid #f2f2f2; cursor: pointer; transition: transform 0.2s, border-color 0.2s; display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+        .card:hover { transform: translateY(-5px); border-color: #333; }
+        .card img { width: 100%; height: 240px; object-fit: cover; border-bottom: 4px solid #f2f2f2; display: block; }
+        .card-title { padding: 15px; font-family: 'MinecraftBold'; font-size: 0.9rem; flex-grow: 1; display: flex; align-items: center; justify-content: center; text-transform: capitalize; }
+
+        .placeholder-card { border: 4px dashed #ddd !important; cursor: default !important; background: #fafafa; min-height: 310px; justify-content: center; }
+
+        /* Admin Dashboard Overlay */
+        #admin-dash { display: none; background: #fcfcfc; border: 4px solid #5865F2; margin: 20px auto; padding: 20px; max-width: 1100px; }
+        .admin-box { background: white; border: 2px solid #333; padding: 15px; margin: 10px; }
+        .drop-zone { border: 2px dashed #5865F2; padding: 20px; margin: 10px 0; background: #f0f2ff; cursor: pointer; }
+        
+        /* Lightbox */
+        #lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.98); z-index: 9999; justify-content: center; align-items: center; }
+        #lightbox img { max-width: 90%; max-height: 80%; border: 5px solid #fff; box-shadow: 0 0 30px rgba(0,0,0,0.1); }
+        .nav-btn { position: absolute; top: 50%; font-size: 4rem; background: none; border: none; cursor: pointer; color: #ccc; font-family: 'MinecraftBold'; }
+
+        #back-btn { display: none; margin: 0 auto 30px; padding: 10px 20px; background: #333; color: #fff; border: 4px solid #000; font-family: 'Minecraft'; cursor: pointer; box-shadow: 4px 4px 0 #888; }
+        
+        #login-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:10000; justify-content:center; align-items:center; }
+        .login-box { background: white; padding: 40px; border: 4px solid #333; }
+        input { font-family: 'Minecraft'; padding: 10px; margin: 5px; border: 2px solid #eee; }
+        
+        footer { margin-top: 80px; padding-bottom: 40px; color: #bbb; font-size: 0.9rem; }
     </style>
 </head>
 <body>
+    <div class="background-bubbles" id="bubbles"></div>
 
-<div id="admin-login-overlay">
-    <div style="background:white; padding:30px; border:4px solid #333;">
-        <h2>ADMIN LOGIN</h2>
-        <input type="text" id="admin-user" placeholder="User"><br><br>
-        <input type="password" id="admin-pass" placeholder="Pass"><br><br>
-        <button class="btn" onclick="checkAdmin()">LOGIN</button>
+    <div id="login-overlay">
+        <div class="login-box">
+            <h2 style="font-family:'MinecraftBold'">ADMIN LOGIN</h2>
+            <input type="text" id="user" placeholder="Username"><br>
+            <input type="password" id="pass" placeholder="Password"><br><br>
+            <button onclick="doLogin()" style="padding:10px 30px; cursor:pointer;">ENTER</button>
+        </div>
     </div>
-</div>
 
-<div id="admin-dashboard">
-    <h2>DASHBOARD</h2>
-    <div class="admin-tool">
-        <h3>Neues Projekt</h3>
-        <input type="text" id="new-proj-name" placeholder="Projekt Name">
-        <button class="btn" onclick="createProject()">ORDNER ERSTELLEN</button>
+    <div id="lightbox">
+        <button class="nav-btn" style="left:20px;" onclick="changeImg(-1)">‹</button>
+        <img id="lb-img">
+        <button class="nav-btn" style="right:20px;" onclick="changeImg(1)">›</button>
+        <button style="position:absolute; top:20px; right:20px; border:none; background:none; font-size:1.5rem; cursor:pointer;" onclick="closeLb()">✕</button>
     </div>
-    <div id="active-edit-zone" style="display:none;" class="admin-tool">
-        <h3 id="edit-folder-name">Editiere: -</h3>
-        <div class="drop-zone" id="drop-start">Startbild hierher ziehen</div>
-        <div class="drop-zone" id="drop-gallery">Galeriebilder hierher ziehen</div>
-        <button class="btn" onclick="finishEdit()">FERTIG</button>
+
+    <header>
+        <h1>Freeper / Freepy</h1>
+        <p class="subtitle">Freepy's Portfolio, powered by Render.</p>
+    </header>
+
+    <div id="admin-dash">
+        <h3 style="font-family:'MinecraftBold'; color:#5865F2;">ADMIN DASHBOARD</h3>
+        <div class="admin-box">
+            <input type="text" id="new-name" placeholder="Projekt Name">
+            <button onclick="createProj()">NEUES PROJEKT ANLEGEN</button>
+        </div>
+        <div id="edit-area" style="display:none;" class="admin-box">
+            <h4 id="edit-title">Edit: </h4>
+            <div class="drop-zone" id="drop-cover">STARTBILD HIERHER ZIEHEN (Cover)</div>
+            <div class="drop-zone" id="drop-gallery">GALERIEBILDER HIERHER ZIEHEN</div>
+            <button onclick="document.getElementById('edit-area').style.display='none'">FERTIG</button>
+        </div>
+        <button onclick="location.reload()" style="background:red; color:white; border:none; padding:5px 15px; cursor:pointer; margin-top:10px;">LOGOUT</button>
     </div>
-    <button class="btn btn-red" onclick="location.reload()">LOGOUT</button>
-</div>
 
-<header style="padding:50px;">
-    <h1>Freeper Portfolio</h1>
-    <p>Drücke "A" "D" "M" "I" "N" zum Einloggen</p>
-</header>
+    <div class="container">
+        <button id="back-btn" onclick="showCats()">← BACK TO CATEGORIES</button>
+        <div id="cat-view" class="grid"></div>
+        <div id="gal-view" style="display:none;">
+            <h2 id="gal-title" style="font-family:'MinecraftBold'; margin-bottom:40px;"></h2>
+            <div id="gal-grid" class="grid"></div>
+        </div>
+    </div>
 
-<div class="grid" id="main-grid"></div>
+    <footer>
+        2026 Freeper / Freepy<br>
+        <span style="color:#5865F2">Discord username: Freeperr</span>
+    </footer>
 
-<script>
-let projects = [];
-let currentEditFolder = "";
-let keyLog = "";
+    <script>
+        let projects = [];
+        let currentGal = [];
+        let curIdx = 0;
+        let editFolder = "";
+        let keys = "";
 
-// Admin Trigger
-document.addEventListener('keydown', (e) => {
-    keyLog += e.key.toUpperCase();
-    if (keyLog.includes("ADMIN")) {
-        document.getElementById('admin-login-overlay').style.display = 'flex';
-        keyLog = "";
-    }
-});
+        // Admin Trigger: Tippe "ADMIN"
+        document.addEventListener('keydown', e => {
+            keys += e.key.toUpperCase();
+            if(keys.includes("ADMIN")) { document.getElementById('login-overlay').style.display='flex'; keys=""; }
+            if(document.getElementById('lightbox').style.display === 'flex') {
+                if(e.key === "ArrowRight") changeImg(1);
+                if(e.key === "ArrowLeft") changeImg(-1);
+                if(e.key === "Escape") closeLb();
+            }
+        });
 
-async function checkAdmin() {
-    const user = document.getElementById('admin-user').value;
-    const pass = document.getElementById('admin-pass').value;
-    const res = await fetch('/api/login', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({user, pass})
-    });
-    if (res.ok) {
-        document.getElementById('admin-login-overlay').style.display = 'none';
-        document.getElementById('admin-dashboard').style.display = 'block';
-        loadProjects();
-    } else alert("Falsch!");
-}
-
-async function loadProjects() {
-    const res = await fetch('/api/projects');
-    projects = await res.json();
-    const grid = document.getElementById('main-grid');
-    grid.innerHTML = '';
-    projects.forEach(p => {
-        const div = document.createElement('div');
-        div.className = 'card';
-        div.innerHTML = `
-            <img src="${p.cover || 'placeholder.png'}">
-            <p>${p.name}</p>
-            ${document.getElementById('admin-dashboard').style.display === 'block' ? 
-                `<button class="btn" onclick="startEdit('${p.folder}')">EDIT</button> 
-                 <button class="btn btn-red" onclick="deleteProject('${p.folder}')">X</button>` : ''}
-        `;
-        grid.appendChild(div);
-    });
-}
-
-async function createProject() {
-    const name = document.getElementById('new-proj-name').value;
-    const res = await fetch('/api/projects/create', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({name})
-    });
-    const data = await res.json();
-    if (res.ok) startEdit(data.folder);
-}
-
-function startEdit(folder) {
-    currentEditFolder = folder;
-    document.getElementById('active-edit-zone').style.display = 'block';
-    document.getElementById('edit-folder-name').innerText = "Editiere: " + folder;
-    window.scrollTo(0,0);
-}
-
-async function deleteProject(folder) {
-    if (confirm("Löschen?")) {
-        await fetch(`/api/projects/${folder}`, { method: 'DELETE' });
-        loadProjects();
-    }
-}
-
-// Drag & Drop Handling
-function setupDropZone(id, type) {
-    const zone = document.getElementById(id);
-    zone.ondragover = (e) => { e.preventDefault(); zone.classList.add('hover'); };
-    zone.ondragleave = () => zone.classList.remove('hover');
-    zone.ondrop = async (e) => {
-        e.preventDefault();
-        zone.classList.remove('hover');
-        const files = e.dataTransfer.files;
-        for (let i = 0; i < files.length; i++) {
-            const formData = new FormData();
-            formData.append('image', files[i]);
-            formData.append('folder', currentEditFolder);
-            formData.append('type', type);
-            formData.append('index', i);
-            await fetch('/api/upload', { method: 'POST', body: formData });
+        async function doLogin() {
+            const user = document.getElementById('user').value;
+            const pass = document.getElementById('pass').value;
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({user, pass})
+            });
+            if(res.ok) {
+                document.getElementById('login-overlay').style.display='none';
+                document.getElementById('admin-dash').style.display='block';
+                load();
+            } else alert("Falsch!");
         }
-        alert("Hochgeladen!");
-        loadProjects();
-    };
-}
 
-setupDropZone('drop-start', 'start');
-setupDropZone('drop-gallery', 'gallery');
+        async function load() {
+            const res = await fetch('/api/projects');
+            projects = await res.json();
+            renderCats();
+        }
 
-function finishEdit() {
-    document.getElementById('active-edit-zone').style.display = 'none';
-    currentEditFolder = "";
-    loadProjects();
-}
+        function renderCats() {
+            const view = document.getElementById('cat-view');
+            view.innerHTML = '';
+            projects.forEach((p, i) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <img src="${p.cover || 'placeholder.png'}" onclick="showGal(${i})">
+                    <div class="card-title" onclick="showGal(${i})">${p.name}</div>
+                    ${document.getElementById('admin-dash').style.display === 'block' ? 
+                      `<div style="padding:10px; border-top:1px solid #eee;">
+                         <button onclick="startEdit('${p.folder}')">UPLOAD</button>
+                         <button onclick="delProj('${p.folder}')" style="color:red">DEL</button>
+                       </div>` : ''}
+                `;
+                view.appendChild(card);
+            });
+            view.innerHTML += `<div class="card placeholder-card"><div style="color:#ccc">? <br>More coming soon.</div></div>`;
+        }
 
-loadProjects();
-</script>
+        function showGal(i) {
+            const p = projects[i];
+            currentGal = p.images;
+            document.getElementById('cat-view').style.display = 'none';
+            document.getElementById('gal-view').style.display = 'block';
+            document.getElementById('back-btn').style.display = 'block';
+            document.getElementById('gal-title').innerText = p.name;
+            const grid = document.getElementById('gal-grid');
+            grid.innerHTML = '';
+            p.images.forEach((img, idx) => {
+                const item = document.createElement('div');
+                item.className = 'card';
+                item.innerHTML = `<img src="${img}" onclick="openLb(${idx})">`;
+                grid.appendChild(item);
+            });
+            window.scrollTo(0,0);
+        }
+
+        function showCats() {
+            document.getElementById('cat-view').style.display = 'grid';
+            document.getElementById('gal-view').style.display = 'none';
+            document.getElementById('back-btn').style.display = 'none';
+        }
+
+        // Admin Actions
+        async function createProj() {
+            const name = document.getElementById('new-name').value;
+            const res = await fetch('/api/projects/create', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({name})
+            });
+            if(res.ok) { const d = await res.json(); startEdit(d.folder); }
+        }
+
+        function startEdit(f) {
+            editFolder = f;
+            document.getElementById('edit-area').style.display = 'block';
+            document.getElementById('edit-title').innerText = "Edit Folder: " + f;
+            window.scrollTo(0,0);
+        }
+
+        async function delProj(f) {
+            if(confirm("Löschen?")) { await fetch(`/api/projects/${f}`, {method:'DELETE'}); load(); }
+        }
+
+        // Drag & Drop
+        function handleDrop(id, type) {
+            const zone = document.getElementById(id);
+            zone.ondragover = e => { e.preventDefault(); zone.style.background = '#e1e4ff'; };
+            zone.ondragleave = () => zone.style.background = '#f0f2ff';
+            zone.ondrop = async e => {
+                e.preventDefault();
+                zone.style.background = '#f0f2ff';
+                const files = e.dataTransfer.files;
+                for(let f of files) {
+                    const fd = new FormData();
+                    fd.append('image', f);
+                    fd.append('folder', editFolder);
+                    fd.append('type', type);
+                    await fetch('/api/upload', {method:'POST', body:fd});
+                }
+                alert("Upload fertig!");
+                load();
+            };
+        }
+        handleDrop('drop-cover', 'start');
+        handleDrop('drop-gallery', 'gallery');
+
+        // Lightbox
+        function openLb(i) { curIdx=i; document.getElementById('lb-img').src=currentGal[curIdx]; document.getElementById('lightbox').style.display='flex'; }
+        function closeLb() { document.getElementById('lightbox').style.display='none'; }
+        function changeImg(s) { curIdx=(curIdx+s+currentGal.length)%currentGal.length; document.getElementById('lb-img').src=currentGal[curIdx]; }
+
+        // Bubbles
+        function initBubbles() {
+            const container = document.getElementById('bubbles');
+            for(let i=0; i<15; i++) {
+                const b = document.createElement('div');
+                b.className = 'bubble';
+                const s = Math.random()*40+10+'px';
+                b.style.width=s; b.style.height=s;
+                b.style.left=Math.random()*100+'%';
+                b.style.animationDuration=Math.random()*5+7+'s';
+                container.appendChild(b);
+            }
+        }
+
+        load();
+        initBubbles();
+    </script>
 </body>
 </html>
